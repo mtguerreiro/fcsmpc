@@ -17,7 +17,7 @@
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void tptransformsABCDQ0(float *abc, float *dq0, float theta){
+void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float theta){
 
 	float alpha, beta;
 	float co, si;
@@ -25,12 +25,12 @@ void tptransformsABCDQ0(float *abc, float *dq0, float theta){
 	co = cosf(theta);
 	si = sinf(theta);
 
-    alpha	= (0.66666666677f) * (abc[0] - 0.5f * (abc[1] + abc[2]));
-    beta	= (0.57735026913f) * (abc[1] - abc[2]);
+    alpha	= (0.66666666677f) * (abc->a - 0.5f * (abc->b + abc->c));
+    beta	= (0.57735026913f) * (abc->b - abc->c);
 
-    dq0[0]	=  alpha * co + beta * si;
-    dq0[1]	= -alpha * si + beta * co;
-    dq0[2]	= (0.57735026913f) * (abc[0] + abc[1] + abc[2]);
+    dq0->d	=  alpha * co + beta * si;
+    dq0->q	= -alpha * si + beta * co;
+    dq0->z	= (0.57735026913f) * (abc->a + abc->b + abc->c);
 }
 //---------------------------------------------------------------------------
 //===========================================================================
