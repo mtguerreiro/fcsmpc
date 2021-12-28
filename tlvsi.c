@@ -58,7 +58,7 @@ void tlvsiPredict(tlvsiLCLPredictData_t *vsi,
 				  float theta, uint32_t sw){
 
 	ii_k_1->d = ii_k->d + vsi->k1 * ii_k->q + vsi->k2 * vc_k->d;
-	ii_k_1->q = ii_k->q - vsi->k1 * ii_k->q + vsi->k2 * vc_k->q;
+	ii_k_1->q = ii_k->q - vsi->k1 * ii_k->d + vsi->k2 * vc_k->q;
 	if(sw != 0){
 		theta = theta - (sw-1)*1.0471975511965976f;
 		ii_k_1->d +=  vsi->k3 * cosf(theta);
