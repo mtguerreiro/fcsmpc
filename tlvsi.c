@@ -17,7 +17,7 @@
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void tlvsiPredictInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg, float Cf, float V_dc, float w, float ts){
+void tlvsiInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg, float Cf, float V_dc, float w, float ts, float w_ii, float w_ig, float w_vc){
 
 	vsi->Li = Li;
 	vsi->Lg = Lg;
@@ -32,10 +32,14 @@ void tlvsiPredictInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg
 	vsi->k1 = ts * w;
 	vsi->k2 = ts / Li;
 	vsi->k3 = (-ts / Li) * (2.0f / 3.0f) * V_dc;
-	vsi->k4 = 0.5f * ts / Cf;
+	vsi->k4 = -0.5f * ts / Cf;
 	vsi->k5 = ts / Cf;
 	vsi->k6 = -0.5f * ts / Lg;
 	vsi->k7 = ts / Lg;
+
+	vsi->w_ii = w_ii;
+	vsi->w_ig = w_ig;
+	vsi->w_vc = w_vc;
 }
 //---------------------------------------------------------------------------
 //void tlvsiPredictInitializeDQ0Data(tlvsiLCLPredictData_t *vsi, psdtypesDQ0_t *ii_k[], psdtypesDQ0_t *ig_k[], psdtypesDQ0_t *vc_k[], psdtypesDQ0_t *vg_k){
@@ -46,22 +50,50 @@ void tlvsiPredictInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg
 //	vsi->vg_k = vg_k;
 //}
 //---------------------------------------------------------------------------
-void tlvsiPredictRun(tlvsiLCLPredictData_t *vsi, psdtypes2LLCLDQ0Data_t *lcl_k, psdtypes2LLCLDQ0Data_t *lcl_k_1, psdtypesDQ0_t vg_k, float theta, uint32_t sw){
+void tlvsiPredict(tlvsiLCLPredictData_t *vsi,
+				  psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
+				  psdtypesDQ0_t *ig_k_1, psdtypesDQ0_t *ig_k,
+				  psdtypesDQ0_t *vc_k_1, psdtypesDQ0_t *vc_k,
+				  psdtypesDQ0_t *vg_k,
+				  float theta, uint32_t sw){
 
-
-	lcl_k_1->ii.d = lcl_k->ii.d + vsi->k1 * lcl_k->ii.q + vsi->k2 * lcl_k->vc.d;
-	lcl_k_1->ii.q = lcl_k->ii.q - vsi->k1 * lcl_k->ii.q + vsi->k2 * lcl_k->vc.q;
+	ii_k_1->d = ii_k->d + vsi->k1 * ii_k->q + vsi->k2 * vc_k->d;
+	ii_k_1->q = ii_k->q - vsi->k1 * ii_k->q + vsi->k2 * vc_k->q;
 	if(sw != 0){
 		theta = theta - (sw-1)*1.0471975511965976f;
-		lcl_k_1->ii.d +=  vsi->k3 * cosf(theta);
-		lcl_k_1->ii.q += -vsi->k3 * sinf(theta);
+		ii_k_1->d +=  vsi->k3 * cosf(theta);
+		ii_k_1->q += -vsi->k3 * sinf(theta);
 	}
 
-	lcl_k_1->vc.d = lcl_k->vc.d + vsi->k1 * lcl_k->vc.q + vsi->k4 * (lcl_k_1->ii.d + lcl_k->ii.d) + vsi->k5 * lcl_k->ig.d;
-	lcl_k_1->vc.q = lcl_k->vc.q - vsi->k1 * lcl_k->vc.d + vsi->k4 * (lcl_k_1->ii.q + lcl_k->ii.q) + vsi->k5 * lcl_k->ig.q;
+	vc_k_1->d = vc_k->d + vsi->k1 * vc_k->q + vsi->k4 * (ii_k_1->d + ii_k->d) + vsi->k5 * ig_k->d;
+	vc_k_1->q = vc_k->q - vsi->k1 * vc_k->d + vsi->k4 * (ii_k_1->q + ii_k->q) + vsi->k5 * ig_k->q;
 
-	lcl_k_1->ig.d = lcl_k->ig.d + vsi->k1 * lcl_k->ig.q + vsi->k6 * (lcl_k_1->vc.d + lcl_k->vc.d) + vsi->k7 * vg_k.d;
-	lcl_k_1->ig.q = lcl_k->ig.q - vsi->k1 * lcl_k->ig.d + vsi->k4 * (lcl_k_1->vc.q + lcl_k->vc.q) + vsi->k7 * vg_k.q;
+	ig_k_1->d = ig_k->d + vsi->k1 * ig_k->q + vsi->k6 * (vc_k_1->d + vc_k->d) + vsi->k7 * vg_k->d;
+	ig_k_1->q = ig_k->q - vsi->k1 * ig_k->d + vsi->k6 * (vc_k_1->q + vc_k->q) + vsi->k7 * vg_k->q;
+}
+//---------------------------------------------------------------------------
+float tlvsiCost(tlvsiLCLPredictData_t *vsi,
+				psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
+				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,
+				psdtypesDQ0_t *vc, psdtypesDQ0_t *vc_ref){
+
+	float e_ii[2], e_ig[2], e_vc[2];
+	float J;
+
+	e_ii[0] = ii->d - ii_ref->d;
+	e_ii[1] = ii->q - ii_ref->q;
+
+	e_ig[0] = ig->d - ig_ref->d;
+	e_ig[1] = ig->q - ig_ref->q;
+
+	e_vc[0] = vc->d - vc_ref->d;
+	e_vc[1] = vc->q - vc_ref->q;
+
+	J = vsi->w_ii * ((e_ii[0] * e_ii[0]) + (e_ii[1] * e_ii[1]))
+	  + vsi->w_ig * ((e_ig[0] * e_ig[0]) + (e_ig[1] * e_ig[1]))
+	  + vsi->w_vc * ((e_vc[0] * e_vc[0]) + (e_vc[1] * e_vc[1]));
+
+	return J;
 }
 //---------------------------------------------------------------------------
 //===========================================================================
