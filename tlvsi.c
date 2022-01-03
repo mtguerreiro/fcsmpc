@@ -10,6 +10,7 @@
 //===========================================================================
 #include "tlvsi.h"
 
+#include "tptransforms.h"
 #include <math.h>
 //===========================================================================
 
@@ -40,15 +41,81 @@ void tlvsiInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg, float
 	vsi->w_ii = w_ii;
 	vsi->w_ig = w_ig;
 	vsi->w_vc = w_vc;
+
+    vsi->ig_d.d = 0.0f;
+    vsi->ig_d.q = 0.0f;
+    vsi->ig_d.z = 0.0f;
+
+    vsi->ig_ref.d = -10.0f;
+    vsi->ig_ref.q = 0.0f;
+    vsi->ig_ref.z = 0.0f;
+
+    vsi->ii_d.d = 0.0f;
+    vsi->ii_d.q = 0.0f;
+    vsi->ii_d.z = 0.0f;
+
+    vsi->vc_d.d = 0.0f;
+    vsi->vc_d.q = 0.0f;
+    vsi->vc_d.z = 0.0f;
+
+    vsi->theta = 0.0f;
+    vsi->sw = 0;
+
+    tppllInit(50.0f, ts, &vsi->spll_3ph_1);
+    vsi->spll_3ph_1.lpf_coeff.b0 = 166.877556f;
+    vsi->spll_3ph_1.lpf_coeff.b1 = -166.322444f;
 }
 //---------------------------------------------------------------------------
-//void tlvsiPredictInitializeDQ0Data(tlvsiLCLPredictData_t *vsi, psdtypesDQ0_t *ii_k[], psdtypesDQ0_t *ig_k[], psdtypesDQ0_t *vc_k[], psdtypesDQ0_t *vg_k){
-//
-//	vsi->ii_k = ii_k;
-//	vsi->ig_k = ig_k;
-//	vsi->vc_k = vc_k;
-//	vsi->vg_k = vg_k;
-//}
+float tlvsiOpt(tlvsiLCLPredictData_t *vsi,
+               psdtypesABC_t *ii, psdtypesABC_t *ig,
+               psdtypesABC_t *vc, psdtypesABC_t *vg){
+
+    float J, Jk;
+    uint32_t k;
+
+    tptransformsABCDQ0(ii, &vsi->ii_d, vsi->theta);
+    tptransformsABCDQ0(ig, &vsi->ig_d, vsi->theta);
+    tptransformsABCDQ0(vc, &vsi->vc_d, vsi->theta);
+    tptransformsABCDQ0(vg, &vsi->vg_k, vsi->theta);
+
+    tppllRun(vsi->vg_k.q, &vsi->spll_3ph_1);
+    vsi->theta = vsi->spll_3ph_1.theta[1];
+
+    /* Delay compensation */
+    tlvsiPredict(vsi, &vsi->ii_k, &vsi->ii_d, &vsi->ig_k, &vsi->ig_d,
+                 &vsi->vc_k, &vsi->vc_d, &vsi->vg_k, vsi->theta, vsi->sw);
+
+    /* References for filter cap. voltage and inverter current */
+    vsi->vc_ref.d = ( vsi->w * vsi->Lg) * vsi->ig_ref.q + vsi->vg_k.d;
+    vsi->vc_ref.q = (-vsi->w * vsi->Lg) * vsi->ig_ref.d + vsi->vg_k.q;
+
+    vsi->ii_ref.d = vsi->ig_ref.d + ( vsi->w * vsi->Cf) * vsi->vc_ref.q;
+    vsi->ii_ref.q = vsi->ig_ref.q + (-vsi->w * vsi->Cf) * vsi->vc_ref.d;
+
+    /* Predicts for each possible switching combination */
+    tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
+                 &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, 0);
+    Jk = tlvsiCost(vsi, &vsi->ii_k_1, &vsi->ii_ref, &vsi->ig_k_1, &vsi->ig_ref,
+                   &vsi->vc_k_1, &vsi->vc_ref);
+    J = Jk;
+    vsi->sw = 0;
+
+    for(k = 1; k < 7; k++){
+
+        tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
+                     &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, k);
+
+        Jk = tlvsiCost(vsi, &vsi->ii_k_1, &vsi->ii_ref,
+                       &vsi->ig_k_1, &vsi->ig_ref, &vsi->vc_k_1, &vsi->vc_ref);
+
+        if(Jk < J){
+            J = Jk;
+            vsi->sw = k;
+        }
+    }
+
+    return J;
+}
 //---------------------------------------------------------------------------
 void tlvsiPredict(tlvsiLCLPredictData_t *vsi,
 				  psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
