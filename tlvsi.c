@@ -70,9 +70,12 @@ float tlvsiOpt(tlvsiLCLPredictData_t *vsi,
                psdtypesABC_t *ii, psdtypesABC_t *ig,
                psdtypesABC_t *vc, psdtypesABC_t *vg){
 
+    float theta, phi;
     float J, Jk;
     float co, si;
     uint32_t k;
+
+    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     /* Pre-computes sin and cos for DQ0 transforms */
     si = sinf(vsi->theta);
@@ -98,17 +101,50 @@ float tlvsiOpt(tlvsiLCLPredictData_t *vsi,
     vsi->ii_ref.q = vsi->ig_ref.q + (-vsi->w * vsi->Cf) * vsi->vc_ref.d;
 
     /* Predicts for each possible switching combination */
-    tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
-                 &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, 0);
+    ii_d_constant = vsi->ii_k.d + vsi->k1 * vsi->ii_k.q + vsi->k2 * vsi->vc_k.d;
+    ii_q_constant = vsi->ii_k.q - vsi->k1 * vsi->ii_k.d + vsi->k2 * vsi->vc_k.q;
+
+    vsi->ii_k_1.d = ii_d_constant;
+    vsi->ii_k_1.q = ii_q_constant;
+
+    vc_d_constant = vsi->vc_k.d + vsi->k1 * vsi->vc_k.q + vsi->k4 * vsi->ii_k.d + vsi->k5 * vsi->ig_k.d;
+    vc_q_constant = vsi->vc_k.q - vsi->k1 * vsi->vc_k.d + vsi->k4 * vsi->ii_k.q + vsi->k5 * vsi->ig_k.q;
+
+    vsi->vc_k_1.d = vc_d_constant + vsi->k4 * (ii_d_constant);
+    vsi->vc_k_1.q = vc_q_constant + vsi->k4 * (ii_q_constant);
+
+    ig_d_constant = vsi->ig_k.d + vsi->k1 * vsi->ig_k.q + vsi->k6 * vsi->vc_k.d + vsi->k7 * vsi->vg_k.d;
+    ig_q_constant = vsi->ig_k.q - vsi->k1 * vsi->ig_k.d + vsi->k6 * vsi->vc_k.q + vsi->k7 * vsi->vg_k.q;
+
+    vsi->ig_k_1.d = ig_d_constant + vsi->k6 * (vsi->vc_k_1.d);
+    vsi->ig_k_1.q = ig_q_constant + vsi->k6 * (vsi->vc_k_1.q);
+
+//    tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
+//                 &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, 0);
+
     Jk = tlvsiCost(vsi, &vsi->ii_k_1, &vsi->ii_ref, &vsi->ig_k_1, &vsi->ig_ref,
                    &vsi->vc_k_1, &vsi->vc_ref);
     J = Jk;
     vsi->sw = 0;
 
+    phi = 0;
     for(k = 1; k < 7; k++){
 
-        tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
-                     &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, k);
+        theta = vsi->theta - phi;
+        co = vsi->k3 * cosf(theta);
+        si = vsi->k3 * sinf(theta);
+
+        vsi->ii_k_1.d = ii_d_constant + co;
+        vsi->ii_k_1.q = ii_q_constant - si;
+
+        vsi->vc_k_1.d = vc_d_constant + vsi->k4 * (vsi->ii_k_1.d);
+        vsi->vc_k_1.q = vc_q_constant + vsi->k4 * (vsi->ii_k_1.q);
+
+        vsi->ig_k_1.d = ig_d_constant + vsi->k6 * (vsi->vc_k_1.d);
+        vsi->ig_k_1.q = ig_q_constant + vsi->k6 * (vsi->vc_k_1.q);
+
+//        tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
+//                     &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, k);
 
         Jk = tlvsiCost(vsi, &vsi->ii_k_1, &vsi->ii_ref,
                        &vsi->ig_k_1, &vsi->ig_ref, &vsi->vc_k_1, &vsi->vc_ref);
@@ -117,6 +153,8 @@ float tlvsiOpt(tlvsiLCLPredictData_t *vsi,
             J = Jk;
             vsi->sw = k;
         }
+
+        phi += 1.0471975511965976f;
     }
 
     return J;
