@@ -17,13 +17,9 @@
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float theta){
+void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co){
 
 	float alpha, beta;
-	float co, si;
-
-	co = cosf(theta);
-	si = sinf(theta);
 
     alpha	= (0.66666666677f) * (abc->a - 0.5f * (abc->b + abc->c));
     beta	= (0.57735026913f) * (abc->b - abc->c);

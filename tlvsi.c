@@ -71,12 +71,17 @@ float tlvsiOpt(tlvsiLCLPredictData_t *vsi,
                psdtypesABC_t *vc, psdtypesABC_t *vg){
 
     float J, Jk;
+    float co, si;
     uint32_t k;
 
-    tptransformsABCDQ0(ii, &vsi->ii_d, vsi->theta);
-    tptransformsABCDQ0(ig, &vsi->ig_d, vsi->theta);
-    tptransformsABCDQ0(vc, &vsi->vc_d, vsi->theta);
-    tptransformsABCDQ0(vg, &vsi->vg_k, vsi->theta);
+    /* Pre-computes sin and cos for DQ0 transforms */
+    si = sinf(vsi->theta);
+    co = cosf(vsi->theta);
+
+    tptransformsABCDQ0(ii, &vsi->ii_d, si, co);
+    tptransformsABCDQ0(ig, &vsi->ig_d, si, co);
+    tptransformsABCDQ0(vc, &vsi->vc_d, si, co);
+    tptransformsABCDQ0(vg, &vsi->vg_k, si, co);
 
     tppllRun(vsi->vg_k.q, &vsi->spll_3ph_1);
     vsi->theta = vsi->spll_3ph_1.theta[1];

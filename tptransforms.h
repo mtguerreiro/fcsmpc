@@ -22,7 +22,7 @@
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float theta);
+void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co);
 //===========================================================================
 
 #endif /* TPTRANSFORMS_H_ */
