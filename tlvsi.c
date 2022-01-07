@@ -22,78 +22,27 @@
 
 #define TLVSI_CONFIG_w 			((float)314.1592653589793)
 
-#define TLVSI_CONFIG_ts 		((float)1.0/40e3)
+#define TLVSI_CONFIG_ts 		((float)1.0f/40e3)
 
 #define TLVSI_CONFIG_k1			((float)(TLVSI_CONFIG_ts * TLVSI_CONFIG_w))
 #define TLVSI_CONFIG_k2			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Li))
 #define TLVSI_CONFIG_k3			((float)((-TLVSI_CONFIG_ts / TLVSI_CONFIG_Li) * (2.0/3.0) * TLVSI_CONFIG_V_dc))
-#define TLVSI_CONFIG_k4			((float)(-0.5 * TLVSI_CONFIG_ts / TLVSI_CONFIG_Cf))
+#define TLVSI_CONFIG_k4			((float)(-0.5f * TLVSI_CONFIG_ts / TLVSI_CONFIG_Cf))
 #define TLVSI_CONFIG_k5			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Cf))
-#define TLVSI_CONFIG_k6			((float)(-0.5 * TLVSI_CONFIG_ts / TLVSI_CONFIG_Lg))
+#define TLVSI_CONFIG_k6			((float)(-0.5f * TLVSI_CONFIG_ts / TLVSI_CONFIG_Lg))
 #define TLVSI_CONFIG_k7			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Lg))
 
-#define TLVSI_CONFIG_w_ii		((float)1.0)
-#define TLVSI_CONFIG_w_ig		((float)400.0)
-#define TLVSI_CONFIG_w_vc		((float)0.49)
-
-
+#define TLVSI_CONFIG_w_ii		((float)1.0f)
+#define TLVSI_CONFIG_w_ig		((float)400.0f)
+#define TLVSI_CONFIG_w_vc		((float)0.49f)
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void tlvsiInitializeParams(tlvsiLCLPredictData_t *vsi, float Li, float Lg, float Cf, float V_dc, float w, float ts, float w_ii, float w_ig, float w_vc){
+uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg, float *Jopt){
 
-//	vsi->Li = Li;
-//	vsi->Lg = Lg;
-//	vsi->Cf = Cf;
-//
-//	vsi->V_dc = V_dc;
-//
-//	vsi->w = w;
-//
-//	vsi->ts = ts;
-//
-//	TLVSI_CONFIG_k1 = ts * w;
-//	TLVSI_CONFIG_k2 = ts / Li;
-//	TLVSI_CONFIG_k3 = (-ts / Li) * (2.0f / 3.0f) * V_dc;
-//	TLVSI_CONFIG_k4 = -0.5f * ts / Cf;
-//	TLVSI_CONFIG_k5 = ts / Cf;
-//	TLVSI_CONFIG_k6 = -0.5f * ts / Lg;
-//	TLVSI_CONFIG_k7 = ts / Lg;
-
-//	vsi->w_ii = w_ii;
-//	vsi->w_ig = w_ig;
-//	vsi->w_vc = w_vc;
-
-    vsi->ig_d.d = 0.0f;
-    vsi->ig_d.q = 0.0f;
-    vsi->ig_d.z = 0.0f;
-
-    vsi->ig_ref.d = -10.0f;
-    vsi->ig_ref.q = 0.0f;
-    vsi->ig_ref.z = 0.0f;
-
-    vsi->ii_d.d = 0.0f;
-    vsi->ii_d.q = 0.0f;
-    vsi->ii_d.z = 0.0f;
-
-    vsi->vc_d.d = 0.0f;
-    vsi->vc_d.q = 0.0f;
-    vsi->vc_d.z = 0.0f;
-
-    vsi->theta = 0.0f;
-    vsi->sw = 0;
-
-    tppllInit(50.0f, ts, &vsi->spll_3ph_1);
-    vsi->spll_3ph_1.lpf_coeff.b0 = 166.877556f;
-    vsi->spll_3ph_1.lpf_coeff.b1 = -166.322444f;
-}
-//---------------------------------------------------------------------------
-float tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg){
-
-//	static tlvsiLCLPredictData_t vsi = {.ig_d = {.d = 0.0f, .q = 0.0f; .z = 0.0f} };
-	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0,
+	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0.0f, .q = 0.0f, .z = 0.0f},
 			.ig_ref = {.d = -10.0f, .q = 0.0f, .z = 0.0f},
 			.ii_d = {.d = 0.0f, .q = 0.0f, .z = 0.0f},
@@ -188,7 +137,9 @@ float tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypes
         phi += 1.0471975511965976f;
     }
 
-    return J;
+    if( Jopt != 0 ) *Jopt = J;
+
+    return vsi.sw;
 }
 //---------------------------------------------------------------------------
 void tlvsiPredict(psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
