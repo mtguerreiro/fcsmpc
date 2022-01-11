@@ -16,10 +16,22 @@ typedef struct{
 }psdtypesABC_t;
 
 typedef struct{
+	int32_t a;
+	int32_t b;
+	int32_t c;
+}psdtypesABCint_t;
+
+typedef struct{
 	float d;
 	float q;
 	float z;
 }psdtypesDQ0_t;
+
+typedef struct{
+	int32_t d;
+	int32_t q;
+	int32_t z;
+}psdtypesDQ0int_t;
 
 typedef struct{
 	psdtypesDQ0_t ii;

@@ -18,7 +18,7 @@
 #define	TLVSI_CONFIG_Lg			((float)1.8e-3)
 #define TLVSI_CONFIG_Cf			((float)20e-6)
 
-#define TLVSI_CONFIG_V_dc		((float)650.0)
+#define TLVSI_CONFIG_V_dc		((float)650.0f)
 
 #define TLVSI_CONFIG_w 			((float)314.1592653589793)
 
@@ -26,7 +26,7 @@
 
 #define TLVSI_CONFIG_k1			((float)(TLVSI_CONFIG_ts * TLVSI_CONFIG_w))
 #define TLVSI_CONFIG_k2			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Li))
-#define TLVSI_CONFIG_k3			((float)((-TLVSI_CONFIG_ts / TLVSI_CONFIG_Li) * (2.0/3.0) * TLVSI_CONFIG_V_dc))
+#define TLVSI_CONFIG_k3			((float)((-TLVSI_CONFIG_ts / TLVSI_CONFIG_Li) * (2.0f/3.0f) * TLVSI_CONFIG_V_dc))
 #define TLVSI_CONFIG_k4			((float)(-0.5f * TLVSI_CONFIG_ts / TLVSI_CONFIG_Cf))
 #define TLVSI_CONFIG_k5			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Cf))
 #define TLVSI_CONFIG_k6			((float)(-0.5f * TLVSI_CONFIG_ts / TLVSI_CONFIG_Lg))
