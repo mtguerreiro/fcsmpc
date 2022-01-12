@@ -160,7 +160,7 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
     return vsi.sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, fmint_t *Jopt){
+uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, fmint_t *Jopt){
 
 	static tlvsiLCLPredictDataInt_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
@@ -177,27 +177,17 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 
     fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
-    vsi.ii_d = *ii;
-    vsi.ig_d = *ig;
-    vsi.vc_d = *vc;
-    vsi.vg_k = *vg;
-
     /* Pre-computes sin and cos for DQ0 transforms */
-//    si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
-//    co = (int64_t)(TLVSI_CONFIG_FTOI_K * cosf(vsi.theta));
+    si = fixedmathftoi(sinf(vsi.theta));
+    co = fixedmathftoi(cosf(vsi.theta));
 
-//    tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
-//    tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
-//    tptransformsABCDQ0(vc, &vsi.vc_d, si, co);
-//    tptransformsABCDQ0(vg, &vsi.vg_k, si, co);
-//
+    tptransformsABCDQ0Int(ii, &vsi.ii_d, si, co);
+    tptransformsABCDQ0Int(ig, &vsi.ig_d, si, co);
+    tptransformsABCDQ0Int(vc, &vsi.vc_d, si, co);
+    tptransformsABCDQ0Int(vg, &vsi.vg_k, si, co);
+
     tppllRunInt(vsi.vg_k.q, &vsi.spll_3ph_1);
     vsi.theta = fixedmathitof(vsi.spll_3ph_1.theta[1]);
-
-//    vsi.ii_k = *ii;
-//    vsi.ig_k = *ig;
-//    vsi.vc_k = *vc;
-//    vsi.vg_k = *vg;
 
     /* Delay compensation */
     tlvsiPredictFixed(&vsi.ii_k, &vsi.ii_d, &vsi.ig_k, &vsi.ig_d,
@@ -393,9 +383,9 @@ fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 	e_vc[0] = vc->d - vc_ref->d;
 	e_vc[1] = vc->q - vc_ref->q;
 
-	J = fixedmul(TLVSI_CONFIG_w_ii_int, ( fixedmul(e_ii[0], e_ii[0]) + fixedmul(e_ii[1], e_ii[1]) ))
-	  + fixedmul(TLVSI_CONFIG_w_ig_int, ( fixedmul(e_ig[0], e_ig[0]) + fixedmul(e_ig[1], e_ig[1]) ))
-	  + fixedmul(TLVSI_CONFIG_w_vc_int, ( fixedmul(e_vc[0], e_vc[0]) + fixedmul(e_vc[1], e_vc[1]) ));
+	J = fixedmul(TLVSI_CONFIG_w_ii_int,  fixedmul(e_ii[0], e_ii[0]) + fixedmul(e_ii[1], e_ii[1]) )
+	  + fixedmul(TLVSI_CONFIG_w_ig_int,  fixedmul(e_ig[0], e_ig[0]) + fixedmul(e_ig[1], e_ig[1]) )
+	  + fixedmul(TLVSI_CONFIG_w_vc_int,  fixedmul(e_vc[0], e_vc[0]) + fixedmul(e_vc[1], e_vc[1]) );
 
 	return J;
 }

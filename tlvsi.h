@@ -102,7 +102,7 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 					   psdtypesDQ0int_t *vg_k,
 					   float theta, uint32_t sw);
 
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, fmint_t *Jopt);
+uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, fmint_t *Jopt);
 
 float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,

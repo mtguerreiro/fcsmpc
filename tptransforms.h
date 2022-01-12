@@ -17,12 +17,15 @@
 #include <stdint.h>
 
 #include "psdtypes.h"
+
+#include "fixedmath.h"
 //===========================================================================
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co);
+void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co);
 //===========================================================================
 
 #endif /* TPTRANSFORMS_H_ */
