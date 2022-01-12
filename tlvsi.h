@@ -26,6 +26,37 @@ typedef struct{
 
     psdtypesABC_t ig_abc;
     psdtypesDQ0_t ig_d;
+    psdtypesDQ0_t ig_k;
+    psdtypesDQ0_t ig_k_1;
+    psdtypesDQ0_t ig_ref;
+
+    psdtypesABC_t ii_abc;
+    psdtypesDQ0_t ii_d;
+    psdtypesDQ0_t ii_k;
+    psdtypesDQ0_t ii_k_1;
+    psdtypesDQ0_t ii_ref;
+
+    psdtypesABC_t vc_abc;
+    psdtypesDQ0_t vc_d;
+    psdtypesDQ0_t vc_k;
+    psdtypesDQ0_t vc_k_1;
+    psdtypesDQ0_t vc_ref;
+
+    psdtypesABC_t vg_abc;
+    psdtypesDQ0_t vg_k;
+
+    float theta;
+
+    uint32_t sw;
+
+    SPLL_3PH_SRF spll_3ph_1;
+
+} tlvsiLCLPredictData_t;
+
+typedef struct{
+
+    psdtypesABC_t ig_abc;
+    psdtypesDQ0int_t ig_d;
     psdtypesDQ0int_t ig_k;
     psdtypesDQ0int_t ig_k_1;
     psdtypesDQ0int_t ig_ref;
@@ -51,7 +82,7 @@ typedef struct{
 
     SPLL_3PH_SRF spll_3ph_1;
 
-} tlvsiLCLPredictData_t;
+} tlvsiLCLPredictDataInt_t;
 //===========================================================================
 
 //===========================================================================
