@@ -160,28 +160,27 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
     return vsi.sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, float theta, fmint_t *Jopt){
+uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, fmint_t *Jopt){
 
 	static tlvsiLCLPredictDataInt_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
 			.ig_ref = {.d = fixedmathftoi(-10.0f / 200.0f), .q = 0, .z = 0},
 			.ii_d = {.d = 0, .q = 0, .z = 0},
 			.vc_d = {.d = 0, .q = 0, .z = 0},
-			.spll_3ph_1 = {.v_q = {0.0f, 0.0f}, .ylf = {0.0f, 0.0f}, .fo = 0.0f, .fn = 50.0f, .theta = {0.0f, 0.0f}, .delta_t = TLVSI_CONFIG_ts, .lpf_coeff = {.b0 = 166.877556f, .b1 = -166.322444f}}
+			.spll_3ph_1 = {.v_q = {0, 0}, .ylf = {0, 0}, .fo = 0, .fn = fixedmathftoi(50.0f), .theta = {0, 0}, .delta_t = fixedmathftoi(TLVSI_CONFIG_ts), .lpf_coeff = {.b0 = fixedmathftoi(166.877556f), .b1 = fixedmathftoi(-166.322444f)}}
 	};
 
-	//float theta, phi;
-	float phi;
-//    int32_t J, Jk;
-//    int32_t co, si;
+	float theta, phi;
 	fmint_t J, Jk;
 	fmint_t co, si;
     uint32_t k;
 
-//    int32_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
     fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
-    vsi.theta = theta;
+    vsi.ii_d = *ii;
+    vsi.ig_d = *ig;
+    vsi.vc_d = *vc;
+    vsi.vg_k = *vg;
 
     /* Pre-computes sin and cos for DQ0 transforms */
 //    si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
@@ -192,18 +191,13 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 //    tptransformsABCDQ0(vc, &vsi.vc_d, si, co);
 //    tptransformsABCDQ0(vg, &vsi.vg_k, si, co);
 //
-//    tppllRun(vsi.vg_k.q, &vsi.spll_3ph_1);
-//    vsi.theta = vsi.spll_3ph_1.theta[1];
+    tppllRunInt(vsi.vg_k.q, &vsi.spll_3ph_1);
+    vsi.theta = fixedmathitof(vsi.spll_3ph_1.theta[1]);
 
 //    vsi.ii_k = *ii;
 //    vsi.ig_k = *ig;
 //    vsi.vc_k = *vc;
 //    vsi.vg_k = *vg;
-
-    vsi.ii_d = *ii;
-    vsi.ig_d = *ig;
-    vsi.vc_d = *vc;
-    vsi.vg_k = *vg;
 
     /* Delay compensation */
     tlvsiPredictFixed(&vsi.ii_k, &vsi.ii_d, &vsi.ig_k, &vsi.ig_d,

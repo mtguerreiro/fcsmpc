@@ -11,7 +11,7 @@
 typedef int32_t fmint_t;
 typedef int64_t fmintpr_t;
 
-#define FIXED_MATH_Q		26
+#define FIXED_MATH_Q		24
 #define FIXED_MATH_FTOI		((float)(1 << FIXED_MATH_Q))
 #define FIXED_MATH_ITOF		( (float) ( 1.0f / ((float)(1 << FIXED_MATH_Q)) ) )
 
