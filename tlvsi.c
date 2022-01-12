@@ -12,17 +12,11 @@
 
 #include "tptransforms.h"
 #include <math.h>
+
+//#include "fixedmath.h"
 //===========================================================================
 
-#define FIXED_MATH_Q		24
-#define FIXED_MATH_FTOI		((float)(1 << FIXED_MATH_Q))
-#define FIXED_MATH_ITOF		( (float) ( 1.0f / ((float)(1 << FIXED_MATH_Q)) ) )
 
-#define fixedmul(a, b)		( (int64_t) ( ( a * b ) >> FIXED_MATH_Q ) )
-#define fixedadd(a, b)		( a + b )
-
-#define fixedmathftoi(a)	( (int64_t) (a * FIXED_MATH_FTOI) )
-#define fixedmathitof(a)	( (float) (a * FIXED_MATH_ITOF) )
 
 #define TLVSI_CONFIG_Li			((float)3.4e-3)
 #define	TLVSI_CONFIG_Lg			((float)1.8e-3)
@@ -48,9 +42,6 @@
 #define TLVSI_CONFIG_w_ii		((float)(1.0f / 1.0f))
 #define TLVSI_CONFIG_w_ig		((float)(400.0f / 1.0f))
 #define TLVSI_CONFIG_w_vc		((float)(0.49f / 1.0f))
-
-#define TLVSI_CONFIG_Q_BASE		FIXED_MATH_Q
-#define TLVSI_CONFIG_FTOI_K		((float)(1 << TLVSI_CONFIG_Q_BASE))
 
 
 //#define TLVSI_CONFIG_k1_int		((int64_t)(TLVSI_CONFIG_k1 * TLVSI_CONFIG_FTOI_K))
@@ -85,11 +76,11 @@
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, float theta, int64_t *Jopt){
+uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, float theta, fmint_t *Jopt){
 
 	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
-			.ig_ref = {.d = ((int64_t)(-10.0f * TLVSI_CONFIG_FTOI_K / 200.0f)), .q = 0, .z = 0},
+			.ig_ref = {.d = fixedmathftoi(-10.0f / 200.0f), .q = 0, .z = 0},
 			.ii_d = {.d = 0, .q = 0, .z = 0},
 			.vc_d = {.d = 0, .q = 0, .z = 0},
 			.spll_3ph_1 = {.v_q = {0.0f, 0.0f}, .ylf = {0.0f, 0.0f}, .fo = 0.0f, .fn = 50.0f, .theta = {0.0f, 0.0f}, .delta_t = TLVSI_CONFIG_ts, .lpf_coeff = {.b0 = 166.877556f, .b1 = -166.322444f}}
@@ -99,18 +90,18 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 	float phi;
 //    int32_t J, Jk;
 //    int32_t co, si;
-    int64_t J, Jk;
-    int64_t co, si;
+	fmint_t J, Jk;
+	fmint_t co, si;
     uint32_t k;
 
 //    int32_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
-    int64_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     vsi.theta = theta;
 
     /* Pre-computes sin and cos for DQ0 transforms */
-    si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
-    co = (int64_t)(TLVSI_CONFIG_FTOI_K * cosf(vsi.theta));
+//    si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
+//    co = (int64_t)(TLVSI_CONFIG_FTOI_K * cosf(vsi.theta));
 
 //    tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
 //    tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
@@ -442,7 +433,7 @@ float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 	return J;
 }
 //---------------------------------------------------------------------------
-int64_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
+fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
 					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref){
 
@@ -472,8 +463,8 @@ int64_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 
 //	int32_t e_ii[2], e_ig[2], e_vc[2];
 //	int32_t J;
-	int64_t e_ii[2], e_ig[2], e_vc[2];
-	int64_t J;
+	fmint_t e_ii[2], e_ig[2], e_vc[2];
+	fmint_t J;
 
 	e_ii[0] = ii->d - ii_ref->d;
 	e_ii[1] = ii->q - ii_ref->q;

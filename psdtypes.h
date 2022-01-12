@@ -8,6 +8,7 @@
 #ifndef PSDTYPES_H_
 #define PSDTYPES_H_
 
+#include "fixedmath.h"
 
 typedef struct{
 	float a;
@@ -16,9 +17,9 @@ typedef struct{
 }psdtypesABC_t;
 
 typedef struct{
-	int64_t a;
-	int64_t b;
-	int64_t c;
+	fmint_t a;
+	fmint_t b;
+	fmint_t c;
 }psdtypesABCint_t;
 
 typedef struct{
@@ -28,9 +29,9 @@ typedef struct{
 }psdtypesDQ0_t;
 
 typedef struct{
-	int64_t d;
-	int64_t q;
-	int64_t z;
+	fmint_t d;
+	fmint_t q;
+	fmint_t z;
 }psdtypesDQ0int_t;
 
 //typedef struct{
