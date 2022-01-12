@@ -14,6 +14,16 @@
 #include <math.h>
 //===========================================================================
 
+#define FIXED_MATH_Q		24
+#define FIXED_MATH_FTOI		((float)(1 << FIXED_MATH_Q))
+#define FIXED_MATH_ITOF		( (float) ( 1.0f / ((float)(1 << FIXED_MATH_Q)) ) )
+
+#define fixedmul(a, b)		( (int64_t) ( ( a * b ) >> FIXED_MATH_Q ) )
+#define fixedadd(a, b)		( a + b )
+
+#define fixedmathftoi(a)	( (int64_t) (a * FIXED_MATH_FTOI) )
+#define fixedmathitof(a)	( (float) (a * FIXED_MATH_ITOF) )
+
 #define TLVSI_CONFIG_Li			((float)3.4e-3)
 #define	TLVSI_CONFIG_Lg			((float)1.8e-3)
 #define TLVSI_CONFIG_Cf			((float)20e-6)
@@ -35,35 +45,51 @@
 #define TLVSI_CONFIG_k8			(TLVSI_CONFIG_w * TLVSI_CONFIG_Lg)
 #define TLVSI_CONFIG_k9			(TLVSI_CONFIG_w * TLVSI_CONFIG_Cf)
 
-#define TLVSI_CONFIG_w_ii		((float)1.0f)
-#define TLVSI_CONFIG_w_ig		((float)400.0f)
-#define TLVSI_CONFIG_w_vc		((float)0.49f)
+#define TLVSI_CONFIG_w_ii		((float)(1.0f / 1.0f))
+#define TLVSI_CONFIG_w_ig		((float)(400.0f / 1.0f))
+#define TLVSI_CONFIG_w_vc		((float)(0.49f / 1.0f))
 
-#define TLVSI_CONFIG_FTOI_K		65536.0f
-#define TLVSI_CONFIG_Q_BASE		16
+#define TLVSI_CONFIG_Q_BASE		FIXED_MATH_Q
+#define TLVSI_CONFIG_FTOI_K		((float)(1 << TLVSI_CONFIG_Q_BASE))
 
-#define TLVSI_CONFIG_k1_int		((int32_t)(TLVSI_CONFIG_k1 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k2_int		((int32_t)(TLVSI_CONFIG_k2 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k3_int		((int32_t)(TLVSI_CONFIG_k3 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k4_int		((int32_t)(TLVSI_CONFIG_k4 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k5_int		((int32_t)(TLVSI_CONFIG_k5 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k6_int		((int32_t)(TLVSI_CONFIG_k6 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k7_int		((int32_t)(TLVSI_CONFIG_k7 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k8_int		((int32_t)(TLVSI_CONFIG_k8 * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_k9_int		((int32_t)(TLVSI_CONFIG_k9 * TLVSI_CONFIG_FTOI_K))
 
-#define TLVSI_CONFIG_w_ii_int		((int32_t)(TLVSI_CONFIG_w_ii * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_w_ig_int		((int32_t)(TLVSI_CONFIG_w_ig * TLVSI_CONFIG_FTOI_K))
-#define TLVSI_CONFIG_w_vc_int		((int32_t)(TLVSI_CONFIG_w_vc * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k1_int		((int64_t)(TLVSI_CONFIG_k1 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k2_int		((int64_t)(TLVSI_CONFIG_k2 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k3_int		((int64_t)(TLVSI_CONFIG_k3 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k4_int		((int64_t)(TLVSI_CONFIG_k4 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k5_int		((int64_t)(TLVSI_CONFIG_k5 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k6_int		((int64_t)(TLVSI_CONFIG_k6 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k7_int		((int64_t)(TLVSI_CONFIG_k7 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k8_int		((int64_t)(TLVSI_CONFIG_k8 * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_k9_int		((int64_t)(TLVSI_CONFIG_k9 * TLVSI_CONFIG_FTOI_K))
+//
+//#define TLVSI_CONFIG_w_ii_int		((int64_t)(TLVSI_CONFIG_w_ii * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_w_ig_int		((int64_t)(TLVSI_CONFIG_w_ig * TLVSI_CONFIG_FTOI_K))
+//#define TLVSI_CONFIG_w_vc_int		((int64_t)(TLVSI_CONFIG_w_vc * TLVSI_CONFIG_FTOI_K))
+
+#define TLVSI_CONFIG_k1_int		fixedmathftoi(TLVSI_CONFIG_k1)
+#define TLVSI_CONFIG_k2_int		fixedmathftoi(TLVSI_CONFIG_k2)
+#define TLVSI_CONFIG_k3_int		fixedmathftoi(TLVSI_CONFIG_k3)
+#define TLVSI_CONFIG_k4_int		fixedmathftoi(TLVSI_CONFIG_k4)
+#define TLVSI_CONFIG_k5_int		fixedmathftoi(TLVSI_CONFIG_k5)
+#define TLVSI_CONFIG_k6_int		fixedmathftoi(TLVSI_CONFIG_k6)
+#define TLVSI_CONFIG_k7_int		fixedmathftoi(TLVSI_CONFIG_k7)
+#define TLVSI_CONFIG_k8_int		fixedmathftoi(TLVSI_CONFIG_k8)
+#define TLVSI_CONFIG_k9_int		fixedmathftoi(TLVSI_CONFIG_k9)
+
+#define TLVSI_CONFIG_w_ii_int	fixedmathftoi(TLVSI_CONFIG_w_ii)
+#define TLVSI_CONFIG_w_ig_int	fixedmathftoi(TLVSI_CONFIG_w_ig)
+#define TLVSI_CONFIG_w_vc_int	fixedmathftoi(TLVSI_CONFIG_w_vc)
+
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, float theta, int32_t *Jopt){
+uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, float theta, int64_t *Jopt){
 
 	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
-			.ig_ref = {.d = ((int32_t)(-10.0f * TLVSI_CONFIG_FTOI_K / 200.0f)), .q = 0, .z = 0},
+			.ig_ref = {.d = ((int64_t)(-10.0f * TLVSI_CONFIG_FTOI_K / 200.0f)), .q = 0, .z = 0},
 			.ii_d = {.d = 0, .q = 0, .z = 0},
 			.vc_d = {.d = 0, .q = 0, .z = 0},
 			.spll_3ph_1 = {.v_q = {0.0f, 0.0f}, .ylf = {0.0f, 0.0f}, .fo = 0.0f, .fn = 50.0f, .theta = {0.0f, 0.0f}, .delta_t = TLVSI_CONFIG_ts, .lpf_coeff = {.b0 = 166.877556f, .b1 = -166.322444f}}
@@ -71,17 +97,20 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 
 	//float theta, phi;
 	float phi;
-    int32_t J, Jk;
-    int32_t co, si;
+//    int32_t J, Jk;
+//    int32_t co, si;
+    int64_t J, Jk;
+    int64_t co, si;
     uint32_t k;
 
-    int32_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+//    int32_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    int64_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     vsi.theta = theta;
 
     /* Pre-computes sin and cos for DQ0 transforms */
-    si = (int32_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
-    co = (int32_t)(TLVSI_CONFIG_FTOI_K * cosf(vsi.theta));
+    si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(vsi.theta));
+    co = (int64_t)(TLVSI_CONFIG_FTOI_K * cosf(vsi.theta));
 
 //    tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
 //    tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
@@ -113,56 +142,92 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 //    vsi.vc_k.q = vc->q;
 
     /* References for filter cap. voltage and inverter current */
-//    vsi.vc_ref.d = ( TLVSI_CONFIG_k8) * vsi.ig_ref.q + vsi.vg_k.d;
-//    vsi.vc_ref.q = (-TLVSI_CONFIG_k8) * vsi.ig_ref.d + vsi.vg_k.q;
-    vsi.vc_ref.d = (((TLVSI_CONFIG_k8_int) * vsi.ig_ref.q) >> TLVSI_CONFIG_Q_BASE)
-    		+ vsi.vg_k.d;
-    vsi.vc_ref.q = (((-TLVSI_CONFIG_k8_int) * vsi.ig_ref.d) >> TLVSI_CONFIG_Q_BASE)
-    		+ vsi.vg_k.q;
+//    vsi.vc_ref.d = (((TLVSI_CONFIG_k8_int) * vsi.ig_ref.q) >> TLVSI_CONFIG_Q_BASE)
+//    		+ vsi.vg_k.d;
+//    vsi.vc_ref.q = (((-TLVSI_CONFIG_k8_int) * vsi.ig_ref.d) >> TLVSI_CONFIG_Q_BASE)
+//    		+ vsi.vg_k.q;
 
-    vsi.ii_ref.d = vsi.ig_ref.d
-    		+ ((( TLVSI_CONFIG_k9_int) * vsi.vc_ref.q) >> TLVSI_CONFIG_Q_BASE);
-    vsi.ii_ref.q = vsi.ig_ref.q
-    		+ (((-TLVSI_CONFIG_k9_int) * vsi.vc_ref.d) >> TLVSI_CONFIG_Q_BASE);
+    vsi.vc_ref.d = fixedmul( TLVSI_CONFIG_k8_int, vsi.ig_ref.q) + vsi.vg_k.d;
+    vsi.vc_ref.q = fixedmul(-TLVSI_CONFIG_k8_int, vsi.ig_ref.d) + vsi.vg_k.q;
+
+//    vsi.ii_ref.d = vsi.ig_ref.d
+//    		+ ((( TLVSI_CONFIG_k9_int) * vsi.vc_ref.q) >> TLVSI_CONFIG_Q_BASE);
+//    vsi.ii_ref.q = vsi.ig_ref.q
+//    		+ (((-TLVSI_CONFIG_k9_int) * vsi.vc_ref.d) >> TLVSI_CONFIG_Q_BASE);
+
+    vsi.ii_ref.d = vsi.ig_ref.d + fixedmul( TLVSI_CONFIG_k9_int, vsi.vc_ref.q);
+    vsi.ii_ref.q = vsi.ig_ref.q + fixedmul(-TLVSI_CONFIG_k9_int, vsi.vc_ref.d);
 
     /* Predicts for each possible switching combination */
+//    ii_d_constant = vsi.ii_k.d
+//    		+ ((TLVSI_CONFIG_k1_int * vsi.ii_k.q) >> TLVSI_CONFIG_Q_BASE)
+//    		+ ((TLVSI_CONFIG_k2_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE);
+//    ii_q_constant = vsi.ii_k.q
+//    		- ((TLVSI_CONFIG_k1_int * vsi.ii_k.d) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k2_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE);
+
     ii_d_constant = vsi.ii_k.d
-    		+ ((TLVSI_CONFIG_k1_int * vsi.ii_k.q) >> TLVSI_CONFIG_Q_BASE)
-    		+ ((TLVSI_CONFIG_k2_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE);
+    		+ fixedmul(TLVSI_CONFIG_k1_int, vsi.ii_k.q)
+    		+ fixedmul(TLVSI_CONFIG_k2_int, vsi.vc_k.d);
+
     ii_q_constant = vsi.ii_k.q
-    		- ((TLVSI_CONFIG_k1_int * vsi.ii_k.d) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k2_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE);
+    		- fixedmul(TLVSI_CONFIG_k1_int, vsi.ii_k.d)
+			+ fixedmul(TLVSI_CONFIG_k2_int, vsi.vc_k.q);
 
     vsi.ii_k_1.d = ii_d_constant;
     vsi.ii_k_1.q = ii_q_constant;
 
     vc_d_constant = vsi.vc_k.d
-    		+ ((TLVSI_CONFIG_k1_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k4_int * vsi.ii_k.d) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k5_int * vsi.ig_k.d) >> TLVSI_CONFIG_Q_BASE);
+    		+ fixedmul(TLVSI_CONFIG_k1_int, vsi.vc_k.q)
+			+ fixedmul(TLVSI_CONFIG_k4_int, vsi.ii_k.d)
+			+ fixedmul(TLVSI_CONFIG_k5_int, vsi.ig_k.d);
     vc_q_constant = vsi.vc_k.q
-    		- ((TLVSI_CONFIG_k1_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k4_int * vsi.ii_k.q) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k5_int * vsi.ig_k.q) >> TLVSI_CONFIG_Q_BASE);
+    		- fixedmul(TLVSI_CONFIG_k1_int, vsi.vc_k.d)
+			+ fixedmul(TLVSI_CONFIG_k4_int, vsi.ii_k.q)
+			+ fixedmul(TLVSI_CONFIG_k5_int, vsi.ig_k.q);
 
-    vsi.vc_k_1.d = vc_d_constant
-    		+ ((TLVSI_CONFIG_k4_int * (ii_d_constant)) >> TLVSI_CONFIG_Q_BASE);
-    vsi.vc_k_1.q = vc_q_constant
-    		+ ((TLVSI_CONFIG_k4_int * (ii_q_constant)) >> TLVSI_CONFIG_Q_BASE);
+    vsi.vc_k_1.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_d_constant);
+    vsi.vc_k_1.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_q_constant);
 
     ig_d_constant = vsi.ig_k.d
-    		+ ((TLVSI_CONFIG_k1_int * vsi.ig_k.q) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k6_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k7_int * vsi.vg_k.d) >> TLVSI_CONFIG_Q_BASE);
+    		+ fixedmul(TLVSI_CONFIG_k1_int, vsi.ig_k.q)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k.d)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vsi.vg_k.d);
     ig_q_constant = vsi.ig_k.q
-    		- ((TLVSI_CONFIG_k1_int * vsi.ig_k.d) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k6_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE)
-			+ ((TLVSI_CONFIG_k7_int * vsi.vg_k.q) >> TLVSI_CONFIG_Q_BASE);
+    		- fixedmul(TLVSI_CONFIG_k1_int, vsi.ig_k.d)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k.q)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vsi.vg_k.q);
 
-    vsi.ig_k_1.d = ig_d_constant
-    		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
-    vsi.ig_k_1.q = ig_q_constant
-    		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
+    vsi.ig_k_1.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k_1.d);
+    vsi.ig_k_1.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k_1.q);
+
+//    vc_d_constant = vsi.vc_k.d
+//    		+ ((TLVSI_CONFIG_k1_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k4_int * vsi.ii_k.d) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k5_int * vsi.ig_k.d) >> TLVSI_CONFIG_Q_BASE);
+//    vc_q_constant = vsi.vc_k.q
+//    		- ((TLVSI_CONFIG_k1_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k4_int * vsi.ii_k.q) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k5_int * vsi.ig_k.q) >> TLVSI_CONFIG_Q_BASE);
+//
+//    vsi.vc_k_1.d = vc_d_constant
+//    		+ ((TLVSI_CONFIG_k4_int * (ii_d_constant)) >> TLVSI_CONFIG_Q_BASE);
+//    vsi.vc_k_1.q = vc_q_constant
+//    		+ ((TLVSI_CONFIG_k4_int * (ii_q_constant)) >> TLVSI_CONFIG_Q_BASE);
+//
+//    ig_d_constant = vsi.ig_k.d
+//    		+ ((TLVSI_CONFIG_k1_int * vsi.ig_k.q) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k6_int * vsi.vc_k.d) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k7_int * vsi.vg_k.d) >> TLVSI_CONFIG_Q_BASE);
+//    ig_q_constant = vsi.ig_k.q
+//    		- ((TLVSI_CONFIG_k1_int * vsi.ig_k.d) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k6_int * vsi.vc_k.q) >> TLVSI_CONFIG_Q_BASE)
+//			+ ((TLVSI_CONFIG_k7_int * vsi.vg_k.q) >> TLVSI_CONFIG_Q_BASE);
+//
+//    vsi.ig_k_1.d = ig_d_constant
+//    		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
+//    vsi.ig_k_1.q = ig_q_constant
+//    		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
 
 //    tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
 //                 &vsi->vc_k_1, &vsi->vc_k, &vsi.vg_k, vsi->theta, 0);
@@ -179,24 +244,38 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 //        co = TLVSI_CONFIG_k3 * cosf(theta);
 //        si = TLVSI_CONFIG_k3 * sinf(theta);
 
-        co = (int32_t)(TLVSI_CONFIG_FTOI_K * cosf(theta));
-        si = (int32_t)(TLVSI_CONFIG_FTOI_K * sinf(theta));
+//        co = (int64_t)(TLVSI_CONFIG_FTOI_K * cosf(theta));
+//        si = (int64_t)(TLVSI_CONFIG_FTOI_K * sinf(theta));
+//
+//        co = (TLVSI_CONFIG_k3_int * co) >> TLVSI_CONFIG_Q_BASE;
+//        si = (TLVSI_CONFIG_k3_int * si) >> TLVSI_CONFIG_Q_BASE;
 
-        co = (TLVSI_CONFIG_k3_int * co) >> TLVSI_CONFIG_Q_BASE;
-        si = (TLVSI_CONFIG_k3_int * si) >> TLVSI_CONFIG_Q_BASE;
+        co = fixedmathftoi( cosf(theta) );
+        si = fixedmathftoi( sinf(theta) );
+
+        co = fixedmul(TLVSI_CONFIG_k3_int, co);
+        si = fixedmul(TLVSI_CONFIG_k3_int, si);
 
         vsi.ii_k_1.d = ii_d_constant + co;
         vsi.ii_k_1.q = ii_q_constant - si;
 
-        vsi.vc_k_1.d = vc_d_constant
-        		+ ((TLVSI_CONFIG_k4_int * (vsi.ii_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
-        vsi.vc_k_1.q = vc_q_constant
-        		+ ((TLVSI_CONFIG_k4_int * (vsi.ii_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
+//        vsi.vc_k_1.d = vc_d_constant
+//        		+ ((TLVSI_CONFIG_k4_int * (vsi.ii_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
+//        vsi.vc_k_1.q = vc_q_constant
+//        		+ ((TLVSI_CONFIG_k4_int * (vsi.ii_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
+//
+//        vsi.ig_k_1.d = ig_d_constant
+//        		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
+//        vsi.ig_k_1.q = ig_q_constant
+//        		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
+
+        vsi.vc_k_1.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, vsi.ii_k_1.d);
+        vsi.vc_k_1.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, vsi.ii_k_1.q);
 
         vsi.ig_k_1.d = ig_d_constant
-        		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.d)) >> TLVSI_CONFIG_Q_BASE);
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k_1.d);
         vsi.ig_k_1.q = ig_q_constant
-        		+ ((TLVSI_CONFIG_k6_int * (vsi.vc_k_1.q)) >> TLVSI_CONFIG_Q_BASE);
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vsi.vc_k_1.q);
 
 //        tlvsiPredict(vsi, &vsi->ii_k_1, &vsi->ii_k, &vsi->ig_k_1, &vsi->ig_k,
 //                     &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, k);
@@ -363,12 +442,38 @@ float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 	return J;
 }
 //---------------------------------------------------------------------------
-int32_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
+int64_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
 					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref){
 
-	int32_t e_ii[2], e_ig[2], e_vc[2];
-	int32_t J;
+////	int32_t e_ii[2], e_ig[2], e_vc[2];
+////	int32_t J;
+//	int64_t e_ii[2], e_ig[2], e_vc[2];
+//	int64_t J;
+//
+//	e_ii[0] = ii->d - ii_ref->d;
+//	e_ii[1] = ii->q - ii_ref->q;
+//
+//	e_ig[0] = ig->d - ig_ref->d;
+//	e_ig[1] = ig->q - ig_ref->q;
+//
+//	e_vc[0] = vc->d - vc_ref->d;
+//	e_vc[1] = vc->q - vc_ref->q;
+//
+//	J = fixedmul(TLVSI_CONFIG_w_ii_int, ( fixedmul(e_ii[0], e_ii[0]) + fixedmul(e_ii[1], e_ii[1]) ))
+//	  + fixedmul(TLVSI_CONFIG_w_ig_int, ( fixedmul(e_ig[0], e_ig[0]) + fixedmul(e_ig[1], e_ig[1]) ))
+//	  + fixedmul(TLVSI_CONFIG_w_vc_int, ( fixedmul(e_vc[0], e_vc[0]) + fixedmul(e_vc[1], e_vc[1]) ));
+//
+////	J = ((TLVSI_CONFIG_w_ii_int * ( ((e_ii[0] * e_ii[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_ii[1] * e_ii[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE)
+////	  + ((TLVSI_CONFIG_w_ig_int * ( ((e_ig[0] * e_ig[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_ig[1] * e_ig[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE)
+////	  + ((TLVSI_CONFIG_w_vc_int * ( ((e_vc[0] * e_vc[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_vc[1] * e_vc[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE);
+
+//	return J;
+
+//	int32_t e_ii[2], e_ig[2], e_vc[2];
+//	int32_t J;
+	int64_t e_ii[2], e_ig[2], e_vc[2];
+	int64_t J;
 
 	e_ii[0] = ii->d - ii_ref->d;
 	e_ii[1] = ii->q - ii_ref->q;
@@ -379,9 +484,13 @@ int32_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 	e_vc[0] = vc->d - vc_ref->d;
 	e_vc[1] = vc->q - vc_ref->q;
 
-	J = ((TLVSI_CONFIG_w_ii_int * ( ((e_ii[0] * e_ii[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_ii[1] * e_ii[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE)
-	  + ((TLVSI_CONFIG_w_ig_int * ( ((e_ig[0] * e_ig[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_ig[1] * e_ig[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE)
-	  + ((TLVSI_CONFIG_w_vc_int * ( ((e_vc[0] * e_vc[0]) >> TLVSI_CONFIG_Q_BASE) + ((e_vc[1] * e_vc[1]) >> TLVSI_CONFIG_Q_BASE) )) >> TLVSI_CONFIG_Q_BASE);
+//	J = fixedmul(TLVSI_CONFIG_w_ii_int, fixedmul(e_ii[0], e_ii[0]) + fixedmul(e_ii[1], e_ii[1]))
+//	  + fixedmul(TLVSI_CONFIG_w_ig_int, fixedmul(e_ig[0], e_ig[0]) + fixedmul(e_ig[1], e_ig[1]))
+//	  + fixedmul(TLVSI_CONFIG_w_vc_int, fixedmul(e_vc[0], e_vc[0]) + fixedmul(e_vc[1], e_vc[1]));
+
+	J = fixedmul(TLVSI_CONFIG_w_ii_int, ( fixedmul(e_ii[0], e_ii[0]) + fixedmul(e_ii[1], e_ii[1]) ))
+	  + fixedmul(TLVSI_CONFIG_w_ig_int, ( fixedmul(e_ig[0], e_ig[0]) + fixedmul(e_ig[1], e_ig[1]) ))
+	  + fixedmul(TLVSI_CONFIG_w_vc_int, ( fixedmul(e_vc[0], e_vc[0]) + fixedmul(e_vc[1], e_vc[1]) ));
 
 	return J;
 }
