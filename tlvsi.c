@@ -43,9 +43,9 @@ int64_t clamp_overflow(int64_t value, int width);
 #define TLVSI_CONFIG_k8			(TLVSI_CONFIG_w * TLVSI_CONFIG_Lg)
 #define TLVSI_CONFIG_k9			(TLVSI_CONFIG_w * TLVSI_CONFIG_Cf)
 
-#define TLVSI_CONFIG_w_ii		((float)(1.0f / 100.0f))
-#define TLVSI_CONFIG_w_ig		((float)(400.0f / 100.0f))
-#define TLVSI_CONFIG_w_vc		((float)(0.49f / 100.0f))
+//#define TLVSI_CONFIG_w_ii		((float)(1.0f / 100.0f))
+//#define TLVSI_CONFIG_w_ig		((float)(400.0f / 100.0f))
+//#define TLVSI_CONFIG_w_vc		((float)(0.49f / 100.0f))
 
 #define TLVSI_CONFIG_k1_int		fixedmathftoi(TLVSI_CONFIG_k1)
 #define TLVSI_CONFIG_k2_int		fixedmathftoi(TLVSI_CONFIG_k2)
@@ -57,9 +57,9 @@ int64_t clamp_overflow(int64_t value, int width);
 #define TLVSI_CONFIG_k8_int		fixedmathftoi(TLVSI_CONFIG_k8)
 #define TLVSI_CONFIG_k9_int		fixedmathftoi(TLVSI_CONFIG_k9)
 
-#define TLVSI_CONFIG_w_ii_int	fixedmathftoi(TLVSI_CONFIG_w_ii)
-#define TLVSI_CONFIG_w_ig_int	fixedmathftoi(TLVSI_CONFIG_w_ig)
-#define TLVSI_CONFIG_w_vc_int	fixedmathftoi(TLVSI_CONFIG_w_vc)
+//#define TLVSI_CONFIG_w_ii_int	fixedmathftoi(TLVSI_CONFIG_w_ii)
+//#define TLVSI_CONFIG_w_ig_int	fixedmathftoi(TLVSI_CONFIG_w_ig)
+//#define TLVSI_CONFIG_w_vc_int	fixedmathftoi(TLVSI_CONFIG_w_vc)
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
@@ -361,28 +361,28 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 			+ fixedmul(TLVSI_CONFIG_k7_int, vg_k->q);
 }
 //---------------------------------------------------------------------------
-float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
-				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,
-				psdtypesDQ0_t *vc, psdtypesDQ0_t *vc_ref){
-
-	float e_ii[2], e_ig[2], e_vc[2];
-	float J;
-
-	e_ii[0] = ii->d - ii_ref->d;
-	e_ii[1] = ii->q - ii_ref->q;
-
-	e_ig[0] = ig->d - ig_ref->d;
-	e_ig[1] = ig->q - ig_ref->q;
-
-	e_vc[0] = vc->d - vc_ref->d;
-	e_vc[1] = vc->q - vc_ref->q;
-
-	J = TLVSI_CONFIG_w_ii * ((e_ii[0] * e_ii[0]) + (e_ii[1] * e_ii[1]))
-	  + TLVSI_CONFIG_w_ig * ((e_ig[0] * e_ig[0]) + (e_ig[1] * e_ig[1]))
-	  + TLVSI_CONFIG_w_vc * ((e_vc[0] * e_vc[0]) + (e_vc[1] * e_vc[1]));
-
-	return J;
-}
+//float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
+//				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,
+//				psdtypesDQ0_t *vc, psdtypesDQ0_t *vc_ref){
+//
+//	float e_ii[2], e_ig[2], e_vc[2];
+//	float J;
+//
+//	e_ii[0] = ii->d - ii_ref->d;
+//	e_ii[1] = ii->q - ii_ref->q;
+//
+//	e_ig[0] = ig->d - ig_ref->d;
+//	e_ig[1] = ig->q - ig_ref->q;
+//
+//	e_vc[0] = vc->d - vc_ref->d;
+//	e_vc[1] = vc->q - vc_ref->q;
+//
+//	J = TLVSI_CONFIG_w_ii * ((e_ii[0] * e_ii[0]) + (e_ii[1] * e_ii[1]))
+//	  + TLVSI_CONFIG_w_ig * ((e_ig[0] * e_ig[0]) + (e_ig[1] * e_ig[1]))
+//	  + TLVSI_CONFIG_w_vc * ((e_vc[0] * e_vc[0]) + (e_vc[1] * e_vc[1]));
+//
+//	return J;
+//}
 //---------------------------------------------------------------------------
 fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 					   psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,

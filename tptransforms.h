@@ -24,7 +24,19 @@
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co);
+//void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co);
+inline void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co){
+
+    float alpha, beta;
+
+    alpha   = (0.66666666677f) * (abc->a - 0.5f * (abc->b + abc->c));
+    beta    = (0.57735026913f) * (abc->b - abc->c);
+
+    dq0->d  =  alpha * co + beta * si;
+    dq0->q  = -alpha * si + beta * co;
+    dq0->z  = (0.57735026913f) * (abc->a + abc->b + abc->c);
+}
+
 void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co);
 //===========================================================================
 
