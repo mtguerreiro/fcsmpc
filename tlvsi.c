@@ -169,7 +169,7 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 //---------------------------------------------------------------------------
 uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, fmint_t *Jopt){
 
-	static tlvsiLCLPredictDataInt_t vsi = {.sw = 0, .theta = 0.0f,
+	static tlvsiLCLPredictDataInt_t vsi = {.sw = 0, .theta = 0,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
 			.ig_ref = {.d = fixedmathftoi(-10.0f / 200.0f), .q = 0, .z = 0},
 			.ii_d = {.d = 0, .q = 0, .z = 0},

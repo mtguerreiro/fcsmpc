@@ -76,7 +76,7 @@ typedef struct{
     psdtypesABC_t vg_abc;
     psdtypesDQ0int_t vg_k;
 
-    float theta;
+    fmint_t theta;
 
     uint32_t sw;
 
