@@ -19,6 +19,7 @@
 #include "psdtypes.h"
 
 #include "fixedmath.h"
+#include "IQmathLib.h"
 //===========================================================================
 
 //===========================================================================
@@ -37,7 +38,18 @@ inline void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si,
     dq0->z  = (0.57735026913f) * (abc->a + abc->b + abc->c);
 }
 
-void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co);
+//void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co);
+inline void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co){
+
+    fmint_t alpha, beta;
+
+    alpha   = _IQmpy( _IQ(0.66666666677f), ( abc->a - _IQmpy(_IQ(0.5f), (abc->b + abc->c)) ) );
+    beta    = _IQmpy( _IQ(0.57735026913f), (abc->b - abc->c) );
+
+    dq0->d  = _IQmpy( alpha, co) + _IQmpy(beta, si);
+    dq0->q  = _IQmpy(-alpha, si) + _IQmpy(beta, co);
+    dq0->z  = _IQmpy( _IQ(0.57735026913f), (abc->a + abc->b + abc->c));
+}
 //===========================================================================
 
 #endif /* TPTRANSFORMS_H_ */

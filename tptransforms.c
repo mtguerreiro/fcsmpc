@@ -34,16 +34,16 @@
 //    dq0->z	= (0.57735026913f) * (abc->a + abc->b + abc->c);
 //}
 //---------------------------------------------------------------------------
-void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co){
-
-	fmint_t alpha, beta;
-
-    alpha	= fixedmul( fixedmathftoi(0.66666666677f), ( abc->a - fixedmul(fixedmathftoi(0.5f), (abc->b + abc->c)) ) );
-    beta	= fixedmul( fixedmathftoi(0.57735026913f), (abc->b - abc->c) );
-
-    dq0->d	= fixedmul( alpha, co) + fixedmul(beta, si);
-    dq0->q	= fixedmul(-alpha, si) + fixedmul(beta, co);
-    dq0->z	= fixedmul( fixedmathftoi(0.57735026913f), (abc->a + abc->b + abc->c));
-}
+//void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co){
+//
+//	fmint_t alpha, beta;
+//
+//    alpha	= fixedmul( fixedmathftoi(0.66666666677f), ( abc->a - fixedmul(fixedmathftoi(0.5f), (abc->b + abc->c)) ) );
+//    beta	= fixedmul( fixedmathftoi(0.57735026913f), (abc->b - abc->c) );
+//
+//    dq0->d	= fixedmul( alpha, co) + fixedmul(beta, si);
+//    dq0->q	= fixedmul(-alpha, si) + fixedmul(beta, co);
+//    dq0->z	= fixedmul( fixedmathftoi(0.57735026913f), (abc->a + abc->b + abc->c));
+//}
 //===========================================================================
 

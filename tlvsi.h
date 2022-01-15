@@ -17,6 +17,7 @@
 #include "tppll.h"
 
 #include "fixedmath.h"
+#include "IQmathLib.h"
 //===========================================================================
 
 //===========================================================================
@@ -88,9 +89,9 @@ typedef struct{
 #define TLVSI_CONFIG_w_ig		((float)(400.0f / 100.0f))
 #define TLVSI_CONFIG_w_vc		((float)(0.49f / 100.0f))
 
-#define TLVSI_CONFIG_w_ii_int	fixedmathftoi(TLVSI_CONFIG_w_ii)
-#define TLVSI_CONFIG_w_ig_int	fixedmathftoi(TLVSI_CONFIG_w_ig)
-#define TLVSI_CONFIG_w_vc_int	fixedmathftoi(TLVSI_CONFIG_w_vc)
+#define TLVSI_CONFIG_w_ii_int	_IQ(TLVSI_CONFIG_w_ii)
+#define TLVSI_CONFIG_w_ig_int	_IQ(TLVSI_CONFIG_w_ig)
+#define TLVSI_CONFIG_w_vc_int	_IQ(TLVSI_CONFIG_w_vc)
 //===========================================================================
 
 //===========================================================================
