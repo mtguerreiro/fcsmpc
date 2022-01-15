@@ -139,10 +139,27 @@ inline float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 	return J;
 }
 
-fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
-					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
-					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref);
+//fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
+//					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
+//					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref);
+inline fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
+                       psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
+                       psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref,
+                       fmint_t *e_ii, fmint_t *e_ig, fmint_t *e_vc){
 
+    e_ii[0] = ii->d - ii_ref->d;
+    e_ii[1] = ii->q - ii_ref->q;
+
+    e_ig[0] = ig->d - ig_ref->d;
+    e_ig[1] = ig->q - ig_ref->q;
+
+    e_vc[0] = vc->d - vc_ref->d;
+    e_vc[1] = vc->q - vc_ref->q;
+
+    return _IQmpy(TLVSI_CONFIG_w_ii_int,  _IQmpy(e_ii[0], e_ii[0]) + _IQmpy(e_ii[1], e_ii[1]) )
+            + _IQmpy(TLVSI_CONFIG_w_ig_int,  _IQmpy(e_ig[0], e_ig[0]) + _IQmpy(e_ig[1], e_ig[1]) )
+            + _IQmpy(TLVSI_CONFIG_w_vc_int,  _IQmpy(e_vc[0], e_vc[0]) + _IQmpy(e_vc[1], e_vc[1]) );
+}
 //===========================================================================
 
 
