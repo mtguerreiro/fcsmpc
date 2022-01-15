@@ -190,7 +190,7 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
 			.spll_3ph_1 = {.v_q = {0, 0}, .ylf = {0, 0}, .fo = 0, .fn = _IQ(50.0f), .theta = {0, 0}, .delta_t = _IQ(TLVSI_CONFIG_ts), .lpf_coeff = {.b0 = _IQ(166.877556f), .b1 = _IQ(-166.322444f)}}
 	};
 
-	fmint_t theta, phi;
+	float theta, phi;
 	fmint_t J, Jk;
 	fmint_t co, si;
     uint32_t k;
@@ -198,12 +198,8 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
     fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     /* Pre-computes sin and cos for DQ0 transforms */
-    co = cosf( (fixedmathitof(vsi.spll_3ph_1.theta[1])) );
-    co = cosine((uint64_t)(_IQmpy(vsi.spll_3ph_1.theta[1], (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-    co = co << (FIXED_MATH_Q - 18 + 1);
-
-    si = sine((uint64_t)(_IQmpy(vsi.spll_3ph_1.theta[1], (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-    si = si << (FIXED_MATH_Q - 18 + 1);
+    si = fixedmathftoi(sinf(vsi.theta));
+    co = fixedmathftoi(cosf(vsi.theta));
 
     tptransformsABCDQ0Int(ii, &vsi.ii_d, si, co);
     tptransformsABCDQ0Int(ig, &vsi.ig_d, si, co);
@@ -211,7 +207,7 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
     tptransformsABCDQ0Int(vg, &vsi.vg_k, si, co);
 
     tppllRunInt(vsi.vg_k.q, &vsi.spll_3ph_1);
-    vsi.theta = vsi.spll_3ph_1.theta[1];
+    vsi.theta = fixedmathitof(vsi.spll_3ph_1.theta[1]);
 
     /* Delay compensation */
     tlvsiPredictFixed(&vsi.ii_k, &vsi.ii_d, &vsi.ig_k, &vsi.ig_d,
@@ -271,13 +267,9 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
     phi = 0;
     for(k = 1; k < 7; k++){
 
-        theta = vsi.spll_3ph_1.theta[1] - phi;
-
-        co = cosine((uint64_t)(_IQmpy(theta, (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-        co = co << (FIXED_MATH_Q - 18 + 1);
-
-        si = sine((uint64_t)(_IQmpy(theta, (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-        si = si << (FIXED_MATH_Q - 18 + 1);
+        theta = vsi.theta - phi;
+        co = fixedmathftoi( cosf(theta) );
+        si = fixedmathftoi( sinf(theta) );
 
         co = _IQmpy(TLVSI_CONFIG_k3_int, co);
         si = _IQmpy(TLVSI_CONFIG_k3_int, si);
@@ -304,7 +296,7 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
             vsi.sw = k;
         }
 
-        phi += _IQ(1.0471975511965976f);
+        phi += 1.0471975511965976f;
     }
 
     if( Jopt != 0 ) *Jopt = J;
@@ -337,7 +329,7 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 				  	   psdtypesDQ0int_t *ig_k_1, psdtypesDQ0int_t *ig_k,
 					   psdtypesDQ0int_t *vc_k_1, psdtypesDQ0int_t *vc_k,
 					   psdtypesDQ0int_t *vg_k,
-					   fmint_t theta, uint32_t sw){
+					   float theta, uint32_t sw){
 
 	fmint_t co, si;
 
@@ -345,13 +337,9 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 	ii_k_1->q = ii_k->q - _IQmpy(TLVSI_CONFIG_k1_int, ii_k->d) + _IQmpy(TLVSI_CONFIG_k2_int, vc_k->q);
 	if(sw != 0){
 
-		theta = theta - _IQmpy( ( (sw-1) << FIXED_MATH_Q ), ( _IQ(1.0471975511965976f) ) );
-
-        co = cosine((uint64_t)(_IQmpy(theta, (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-        co = co << (FIXED_MATH_Q - 18 + 1);
-
-        si = sine((uint64_t)(_IQmpy(theta, (_IQ(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
-        si = si << (FIXED_MATH_Q - 18 + 1);
+	    theta = theta - (sw-1)*1.0471975511965976f;
+	    co = fixedmathftoi( cosf(theta) );
+	    si = fixedmathftoi( sinf(theta) );
 
         co = _IQmpy(TLVSI_CONFIG_k3_int, co);
         si = _IQmpy(TLVSI_CONFIG_k3_int, si);

@@ -77,7 +77,7 @@ typedef struct{
     psdtypesABC_t vg_abc;
     psdtypesDQ0int_t vg_k;
 
-    fmint_t theta;
+    float theta;
 
     uint32_t sw;
 
@@ -109,7 +109,7 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 				  	   psdtypesDQ0int_t *ig_k_1, psdtypesDQ0int_t *ig_k,
 					   psdtypesDQ0int_t *vc_k_1, psdtypesDQ0int_t *vc_k,
 					   psdtypesDQ0int_t *vg_k,
-					   fmint_t theta, uint32_t sw);
+					   float theta, uint32_t sw);
 
 uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, fmint_t *Jopt);
 
