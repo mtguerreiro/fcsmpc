@@ -88,10 +88,12 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 			.spll_3ph_1 = {.v_q = {0.0f, 0.0f}, .ylf = {0.0f, 0.0f}, .fo = 0.0f, .fn = 50.0f, .theta = {0.0f, 0.0f}, .delta_t = TLVSI_CONFIG_ts, .lpf_coeff = {.b0 = 166.877556f, .b1 = -166.322444f}}
 	};
 
+	float alpha, beta;
 	float theta, phi;
     float J, Jk;
     float co, si;
     uint32_t k;
+    float e_ii[2], e_ig[2], e_vc[2];
 
     float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
@@ -99,10 +101,10 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
     si = sinf(vsi.theta);
     co = cosf(vsi.theta);
 
-    tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
-    tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
-    tptransformsABCDQ0(vc, &vsi.vc_d, si, co);
-    tptransformsABCDQ0(vg, &vsi.vg_k, si, co);
+    tptransformsABCDQ0(ii, &vsi.ii_d, si, co, &alpha, &beta);
+    tptransformsABCDQ0(ig, &vsi.ig_d, si, co, &alpha, &beta);
+    tptransformsABCDQ0(vc, &vsi.vc_d, si, co, &alpha, &beta);
+    tptransformsABCDQ0(vg, &vsi.vg_k, si, co, &alpha, &beta);
 
     tppllRun(vsi.vg_k.q, &vsi.spll_3ph_1);
     vsi.theta = vsi.spll_3ph_1.theta[1];
@@ -141,7 +143,8 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 //                 &vsi->vc_k_1, &vsi->vc_k, &vsi.vg_k, vsi->theta, 0);
 
     Jk = tlvsiCost(&vsi.ii_k_1, &vsi.ii_ref, &vsi.ig_k_1, &vsi.ig_ref,
-                   &vsi.vc_k_1, &vsi.vc_ref);
+                   &vsi.vc_k_1, &vsi.vc_ref,
+                   e_ii, e_ig, e_vc);
     J = Jk;
     vsi.sw = 0;
 
@@ -165,7 +168,8 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 //                     &vsi->vc_k_1, &vsi->vc_k, &vsi->vg_k, vsi->theta, k);
 
         Jk = tlvsiCost(&vsi.ii_k_1, &vsi.ii_ref,
-                       &vsi.ig_k_1, &vsi.ig_ref, &vsi.vc_k_1, &vsi.vc_ref);
+                       &vsi.ig_k_1, &vsi.ig_ref, &vsi.vc_k_1, &vsi.vc_ref,
+                       e_ii, e_ig, e_vc);
 
         if(Jk < J){
             J = Jk;
