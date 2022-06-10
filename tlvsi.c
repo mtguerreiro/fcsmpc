@@ -65,7 +65,7 @@ int64_t clamp_overflow(int64_t value, int width);
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg, float *Jopt){
+uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg, psdtypesDQ0_t* ig_ref, float *Jopt){
 
 	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0.0f, .q = 0.0f, .z = 0.0f},
@@ -82,6 +82,8 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 
     float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
+    vsi.ig_ref.d = ig_ref->d;
+    
     /* Pre-computes sin and cos for DQ0 transforms */
     si = sinf(vsi.theta);
     co = cosf(vsi.theta);
