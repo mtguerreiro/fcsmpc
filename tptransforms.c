@@ -45,5 +45,13 @@ void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t
     dq0->q	= fixedmul(-alpha, si) + fixedmul(beta, co);
     dq0->z	= fixedmul( fixedmathftoi(0.57735026913f), (abc->a + abc->b + abc->c));
 }
+//---------------------------------------------------------------------------
+void tptransformsLineToPhase(psdtypesABCLine_t *line, psdtypesABC_t *phase){
+
+    phase->a = (line->ac + line->ab) / 3.0f;
+    phase->b = (line->ac - 2.0f * line->ab) / 3.0f;
+    phase->c = (-2.0f * line->ac + line->ab) / 3.0f;
+}
+//---------------------------------------------------------------------------
 //===========================================================================
 

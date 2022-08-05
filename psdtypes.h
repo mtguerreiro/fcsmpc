@@ -58,4 +58,10 @@ typedef struct{
 	psdtypesDQ0_t vc;
 }psdtypes2LLCLDQ0Data_t;
 
+typedef struct{
+	float ab;
+	float ac;
+	float bc;
+}psdtypesABCLine_t;
+
 #endif /* PSDTYPES_H_ */
