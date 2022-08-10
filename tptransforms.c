@@ -53,5 +53,12 @@ void tptransformsLineToPhase(psdtypesABCLine_t *line, psdtypesABC_t *phase){
     phase->c = (-2.0f * line->ac + line->ab) / 3.0f;
 }
 //---------------------------------------------------------------------------
+void tptransformsLineToPhaseInt(psdtypesABCLineint_t *line, psdtypesABCint_t *phase){
+
+    phase->a = fixedmul( (line->ac + line->ab), fixedmathftoi(1.0f / 3.0f) );
+    phase->b = fixedmul( (line->ac - fixedmul(fixedmathftoi(2.0f), line->ab)), fixedmathftoi(1.0f / 3.0f) );
+    phase->c = fixedmul( (-fixedmul(fixedmathftoi(2.0f), line->ac) + line->ab), fixedmathftoi(1.0f / 3.0f) );
+}
+//---------------------------------------------------------------------------
 //===========================================================================
 

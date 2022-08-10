@@ -64,4 +64,10 @@ typedef struct{
 	float bc;
 }psdtypesABCLine_t;
 
+typedef struct{
+	fmint_t ab;
+	fmint_t ac;
+	fmint_t bc;
+}psdtypesABCLineint_t;
+
 #endif /* PSDTYPES_H_ */
