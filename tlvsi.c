@@ -170,7 +170,7 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
     return vsi.sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, fmint_t *Jopt){
+uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCint_t *vc, psdtypesABCint_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t *Jopt){
 
 	static tlvsiLCLPredictDataInt_t vsi = {.sw = 0, .theta = 0,
 			.ig_d = {.d = 0, .q = 0, .z = 0},
@@ -187,6 +187,9 @@ uint32_t tlvsiOptFixed(psdtypesABCint_t *ii, psdtypesABCint_t *ig, psdtypesABCin
 
     fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
+    vsi.ig_ref.d = ig_ref->d;
+    vsi.ig_ref.q = ig_ref->q;
+    
     /* Pre-computes sin and cos for DQ0 transforms */
     co = cosine((uint64_t)(fixedmul(vsi.spll_3ph_1.theta[1], (fixedmathftoi(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
     co = co << (FIXED_MATH_Q - 18 + 1);
