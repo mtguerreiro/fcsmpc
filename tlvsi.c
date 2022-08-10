@@ -65,7 +65,7 @@ int64_t clamp_overflow(int64_t value, int width);
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg, psdtypesDQ0_t* ig_ref, float *Jopt){
+uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt){
 
 	static tlvsiLCLPredictData_t vsi = {.sw = 0, .theta = 0.0f,
 			.ig_d = {.d = 0.0f, .q = 0.0f, .z = 0.0f},
@@ -75,7 +75,7 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
 			.spll_3ph_1 = {.v_q = {0.0f, 0.0f}, .ylf = {0.0f, 0.0f}, .fo = 0.0f, .fn = 50.0f, .theta = {0.0f, 0.0f}, .delta_t = TLVSI_CONFIG_ts, .lpf_coeff = {.b0 = 166.877556f, .b1 = -166.322444f}}
 	};
 
-	float theta, phi;
+	float phi;
     float J, Jk;
     float co, si;
     uint32_t k;
@@ -85,17 +85,22 @@ uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdty
     vsi.ig_ref.d = ig_ref->d;
     vsi.ig_ref.q = ig_ref->q;    
     
+    vsi.ii_d = *ii;
+    vsi.ig_d = *ig;
+    vsi.vc_d = *vc;
+    vsi.vg_k = *vg;
     /* Pre-computes sin and cos for DQ0 transforms */
-    si = sinf(vsi.theta);
-    co = cosf(vsi.theta);
+    //si = sinf(vsi.theta);
+    //co = cosf(vsi.theta);
 
-    tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
-    tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
-    tptransformsABCDQ0(vc, &vsi.vc_d, si, co);
-    tptransformsABCDQ0(vg, &vsi.vg_k, si, co);
+    //tptransformsABCDQ0(ii, &vsi.ii_d, si, co);
+    //tptransformsABCDQ0(ig, &vsi.ig_d, si, co);
+    //tptransformsABCDQ0(vc, &vsi.vc_d, si, co);
+    //tptransformsABCDQ0(vg, &vsi.vg_k, si, co);
 
-    tppllRun(vsi.vg_k.q, &vsi.spll_3ph_1);
-    vsi.theta = vsi.spll_3ph_1.theta[1];
+    //tppllRun(vsi.vg_k.q, &vsi.spll_3ph_1);
+    //vsi.theta = vsi.spll_3ph_1.theta[1];
+    vsi.theta = theta;
 
     /* Delay compensation */
     tlvsiPredict(&vsi.ii_k, &vsi.ii_d, &vsi.ig_k, &vsi.ig_d,

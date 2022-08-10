@@ -88,7 +88,7 @@ typedef struct{
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-uint32_t tlvsiOpt(psdtypesABC_t *ii, psdtypesABC_t *ig, psdtypesABC_t *vc, psdtypesABC_t *vg, psdtypesDQ0_t* ig_ref, float *Jopt);
+uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt);
 
 void tlvsiPredict(psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
 				  psdtypesDQ0_t *ig_k_1, psdtypesDQ0_t *ig_k,
