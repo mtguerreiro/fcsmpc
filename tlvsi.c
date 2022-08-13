@@ -26,7 +26,7 @@ int64_t clamp_overflow(int64_t value, int width);
 #define	TLVSI_CONFIG_Lg			((float)1.8e-3)
 #define TLVSI_CONFIG_Cf			((float)20e-6)
 
-#define TLVSI_CONFIG_V_dc		((float)(650.0f / 200.0f))
+#define TLVSI_CONFIG_V_dc		((float)(650.0f / TLVSI_CONFIG_SCALE))
 
 #define TLVSI_CONFIG_w 			((float)314.1592653589793)
 
@@ -43,9 +43,9 @@ int64_t clamp_overflow(int64_t value, int width);
 #define TLVSI_CONFIG_k8			(TLVSI_CONFIG_w * TLVSI_CONFIG_Lg)
 #define TLVSI_CONFIG_k9			(TLVSI_CONFIG_w * TLVSI_CONFIG_Cf)
 
-#define TLVSI_CONFIG_w_ii		((float)(1.0f / 100.0f))
-#define TLVSI_CONFIG_w_ig		((float)(400.0f / 100.0f))
-#define TLVSI_CONFIG_w_vc		((float)(0.49f / 100.0f))
+#define TLVSI_CONFIG_w_ii		((float)(1.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_w_ig		((float)(400.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_w_vc		((float)(0.49f / TLVSI_CONFIG_SCALE))
 
 #define TLVSI_CONFIG_k1_int		fixedmathftoi(TLVSI_CONFIG_k1)
 #define TLVSI_CONFIG_k2_int		fixedmathftoi(TLVSI_CONFIG_k2)
