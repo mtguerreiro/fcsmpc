@@ -16,21 +16,13 @@
 #include <stdbool.h>
 //#include <assert.h>
 
+#include "tlvsi_config.h"
+
 int64_t sine(uint64_t value);
 int64_t cosine(uint64_t value);
 int64_t clamp_overflow(int64_t value, int width);
 
 //===========================================================================
-
-#define TLVSI_CONFIG_Li			((float)3.4e-3)
-#define	TLVSI_CONFIG_Lg			((float)1.8e-3)
-#define TLVSI_CONFIG_Cf			((float)20e-6)
-
-#define TLVSI_CONFIG_V_dc		((float)(650.0f / TLVSI_CONFIG_SCALE))
-
-#define TLVSI_CONFIG_w 			((float)314.1592653589793)
-
-#define TLVSI_CONFIG_ts 		((float)1.0f/40e3)
 
 #define TLVSI_CONFIG_k1			((float)(TLVSI_CONFIG_ts * TLVSI_CONFIG_w))
 #define TLVSI_CONFIG_k2			((float)(TLVSI_CONFIG_ts / TLVSI_CONFIG_Li))
@@ -42,10 +34,6 @@ int64_t clamp_overflow(int64_t value, int width);
 
 #define TLVSI_CONFIG_k8			(TLVSI_CONFIG_w * TLVSI_CONFIG_Lg)
 #define TLVSI_CONFIG_k9			(TLVSI_CONFIG_w * TLVSI_CONFIG_Cf)
-
-#define TLVSI_CONFIG_w_ii		((float)(1.0f / TLVSI_CONFIG_SCALE))
-#define TLVSI_CONFIG_w_ig		((float)(400.0f / TLVSI_CONFIG_SCALE))
-#define TLVSI_CONFIG_w_vc		((float)(0.49f / TLVSI_CONFIG_SCALE))
 
 #define TLVSI_CONFIG_k1_int		fixedmathftoi(TLVSI_CONFIG_k1)
 #define TLVSI_CONFIG_k2_int		fixedmathftoi(TLVSI_CONFIG_k2)
