@@ -20,6 +20,9 @@
 //===========================================================================
 #define TLVSI_CONFIG_SCALE		200.0f
 
+#define TLVSI_CONFIG_II_D_LIM   ((float)(13.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_II_Q_LIM   ((float)(13.0f / TLVSI_CONFIG_SCALE))
+
 #define TLVSI_CONFIG_Li			((float)0.0034)
 #define TLVSI_CONFIG_Lg			((float)0.0018)
 #define TLVSI_CONFIG_Cf			((float)2e-05)

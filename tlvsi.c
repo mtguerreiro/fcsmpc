@@ -49,6 +49,18 @@ int64_t clamp_overflow(int64_t value, int width);
 #define TLVSI_CONFIG_w_ig_int	fixedmathftoi(TLVSI_CONFIG_w_ig)
 #define TLVSI_CONFIG_w_vc_int	fixedmathftoi(TLVSI_CONFIG_w_vc)
 
+#define TLVSI_II_D_P            TLVSI_CONFIG_II_D_LIM
+#define TLVSI_II_D_N           -TLVSI_CONFIG_II_D_LIM
+
+#define TLVSI_II_Q_P            TLVSI_CONFIG_II_Q_LIM
+#define TLVSI_II_Q_N           -TLVSI_CONFIG_II_Q_LIM
+
+#define TLVSI_II_D_P_int        fixedmathftoi(TLVSI_CONFIG_II_D_LIM)
+#define TLVSI_II_D_N_int        fixedmathftoi(-TLVSI_CONFIG_II_D_LIM)
+
+#define TLVSI_II_Q_P_int        fixedmathftoi(TLVSI_CONFIG_II_Q_LIM)
+#define TLVSI_II_Q_N_int        fixedmathftoi(-TLVSI_CONFIG_II_Q_LIM)
+
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
@@ -97,11 +109,17 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
     ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
     ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
 
-    Jk = tlvsiCost(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
-                   &vc_k_1, &vc_ref);
-    J = Jk;
-    sw = 0;
-
+    if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_D_N) ){
+        Jk = 1e30;
+        J = Jk;  
+    }
+    else{
+        Jk = tlvsiCost(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+                       &vc_k_1, &vc_ref);
+        J = Jk;  
+        sw = 0;
+    }
+    
     phi = 0;
     for(k = 1; k < 7; k++){
 
@@ -118,8 +136,13 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
         ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
         ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
 
-        Jk = tlvsiCost(&ii_k_1, &ii_ref,
-                       &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+        if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_D_N) ){
+            Jk = 1e30;
+        }
+        else{
+            Jk = tlvsiCost(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+                           &vc_k_1, &vc_ref);    
+        }
 
         if(Jk < J){
             J = Jk;
@@ -351,10 +374,21 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
     ig_k_1.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.d);
     ig_k_1.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
 
-    Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
-                   &vc_k_1, &vc_ref);
-    J = Jk;
-    sw = 0;
+    if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_D_N_int) ){
+        Jk = (0xFFFFFFFF >> 1);
+        J = Jk;  
+    }
+    else{
+        Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+                       &vc_k_1, &vc_ref);
+        J = Jk;  
+        sw = 0;
+    }
+    
+//    Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+//                   &vc_k_1, &vc_ref);
+//    J = Jk;
+//    sw = 0;
 
     phi = 0;
     for(k = 1; k < 7; k++){
@@ -381,8 +415,15 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
         ig_k_1.q = ig_q_constant
         		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
 
-        Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
-                       &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+        if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_D_N_int) ){
+            Jk = (0xFFFFFFFF >> 1);
+        }
+        else{
+            Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+                           &vc_k_1, &vc_ref);
+        }
+//        Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
+//                       &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
 
         if(Jk < J){
             J = Jk;
