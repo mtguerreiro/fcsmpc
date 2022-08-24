@@ -109,7 +109,7 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
     ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
     ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
 
-    if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_D_N) ){
+    if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_Q_N) ){
         Jk = 1e30;
         J = Jk;  
     }
@@ -136,7 +136,7 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
         ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
         ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
 
-        if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_D_N) ){
+        if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_Q_N) ){
             Jk = 1e30;
         }
         else{
@@ -206,9 +206,15 @@ uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
     //Jk = tlvsiCost(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
     //               &vc_k_1, &vc_ref);
     //J = Jk;
-    tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
-    J = Jk;
-    sw = 0;
+    if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_Q_N) ){
+        Jk = 1e30;
+        J = Jk;  
+    }
+    else{
+        tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        J = Jk;
+        sw = 0;
+    }
 
     phi = 0;
     for(k = 1; k < 7; k++){
@@ -226,7 +232,14 @@ uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
         ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
         ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
 
-        tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        if( (ii_k_1.d > TLVSI_II_D_P) || (ii_k_1.d < TLVSI_II_D_N) || (ii_k_1.q > TLVSI_II_Q_P) || (ii_k_1.q < TLVSI_II_Q_N) ){
+            Jk = 1e30;
+        }
+        else{
+            tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        }
+
+//        tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
         //Jk = tlvsiCost(&ii_k_1, &ii_ref,
         //               &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
 
@@ -276,6 +289,18 @@ uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
     ig_k.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k.d);
     ig_k.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k.q);
 
+/*
+    if( (ii_k.d > TLVSI_II_D_P) || (ii_k.d < TLVSI_II_D_N) || (ii_k.q > TLVSI_II_Q_P) || (ii_k.q < TLVSI_II_Q_N) ){
+        Jk = 1e30;
+        J = Jk;  
+    }
+    else{
+        Jk = tlvsiCost(&ii_k, ii_ref, &ig_k, ig_ref,
+                       &vc_k, vc_ref);
+        J = Jk;  
+        sw = 0;
+    }
+*/
     Jk = tlvsiCost(&ii_k, ii_ref, &ig_k, ig_ref,
                    &vc_k, vc_ref);
     J = Jk;
@@ -296,7 +321,15 @@ uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
 
         ig_k.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k.d);
         ig_k.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k.q);
-
+/*
+        if( (ii_k.d > TLVSI_II_D_P) || (ii_k.d < TLVSI_II_D_N) || (ii_k.q > TLVSI_II_Q_P) || (ii_k.q < TLVSI_II_Q_N) ){
+            Jk = 1e30;
+        }
+        else{
+            Jk = tlvsiCost(&ii_k, ii_ref, &ig_k, ig_ref,
+                           &vc_k, vc_ref);
+        }
+*/   
         Jk = tlvsiCost(&ii_k, ii_ref,
                        &ig_k, ig_ref, &vc_k, vc_ref);
 
@@ -374,7 +407,8 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
     ig_k_1.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.d);
     ig_k_1.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
 
-    if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_D_N_int) ){
+
+    if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_Q_N_int) ){
         Jk = (0xFFFFFFFF >> 1);
         J = Jk;  
     }
@@ -384,11 +418,13 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
         J = Jk;  
         sw = 0;
     }
-    
-//    Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
-//                   &vc_k_1, &vc_ref);
-//    J = Jk;
-//    sw = 0;
+  
+/*
+    Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+                   &vc_k_1, &vc_ref);
+    J = Jk;
+    sw = 0;
+*/
 
     phi = 0;
     for(k = 1; k < 7; k++){
@@ -415,15 +451,19 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
         ig_k_1.q = ig_q_constant
         		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
 
-        if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_D_N_int) ){
+
+        if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_Q_N_int) ){
             Jk = (0xFFFFFFFF >> 1);
         }
         else{
             Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
                            &vc_k_1, &vc_ref);
         }
-//        Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
-//                       &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+
+/*
+        Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
+                       &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+*/
 
         if(Jk < J){
             J = Jk;
@@ -504,7 +544,17 @@ uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
     //Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
     //               &vc_k_1, &vc_ref);
     
-    tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+    if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_Q_N_int) ){
+        Jk = (0xFFFFFFFF >> 1);
+        J = Jk;  
+    }
+    else{
+        tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        J = Jk;  
+        sw = 0;
+    }
+    
+//    tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
     
     J = Jk;
     sw = 0;
@@ -534,7 +584,14 @@ uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
         ig_k_1.q = ig_q_constant
         		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
 
-        tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        if( (ii_k_1.d > TLVSI_II_D_P_int) || (ii_k_1.d < TLVSI_II_D_N_int) || (ii_k_1.q > TLVSI_II_Q_P_int) || (ii_k_1.q < TLVSI_II_Q_N_int) ){
+            Jk = (0xFFFFFFFF >> 1);
+        }
+        else{
+            tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        }
+    
+//        tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
     
         //Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
         //               &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
@@ -601,10 +658,24 @@ uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
     ig_k.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k.d);
     ig_k.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k.q);
 
+
+    if( (ii_k.d > TLVSI_II_D_P_int) || (ii_k.d < TLVSI_II_D_N_int) || (ii_k.q > TLVSI_II_Q_P_int) || (ii_k.q < TLVSI_II_Q_N_int) ){
+        Jk = (0xFFFFFFFF >> 1);
+        J = Jk;  
+    }
+    else{
+        Jk = tlvsiCostFixed(&ii_k, ii_ref, &ig_k, ig_ref,
+                       &vc_k, vc_ref);
+        J = Jk;  
+        sw = 0;
+    }
+
+/*
     Jk = tlvsiCostFixed(&ii_k, ii_ref, &ig_k, ig_ref,
                    &vc_k, vc_ref);
     J = Jk;
     sw = 0;
+*/
 
     phi = 0;
     for(k = 1; k < 7; k++){
@@ -631,8 +702,18 @@ uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
         ig_k.q = ig_q_constant
         		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k.q);
 
+        if( (ii_k.d > TLVSI_II_D_P_int) || (ii_k.d < TLVSI_II_D_N_int) || (ii_k.q > TLVSI_II_Q_P_int) || (ii_k.q < TLVSI_II_Q_N_int) ){
+            Jk = (0xFFFFFFFF >> 1);
+        }
+        else{
+            Jk = tlvsiCostFixed(&ii_k, ii_ref, &ig_k, ig_ref,
+                           &vc_k, vc_ref);
+        }
+
+/*
         Jk = tlvsiCostFixed(&ii_k, ii_ref,
                        &ig_k, ig_ref, &vc_k, vc_ref);
+*/
 
         if(Jk < J){
             J = Jk;

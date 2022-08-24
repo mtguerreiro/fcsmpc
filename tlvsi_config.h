@@ -20,8 +20,8 @@
 //===========================================================================
 #define TLVSI_CONFIG_SCALE		200.0f
 
-#define TLVSI_CONFIG_II_D_LIM   ((float)(13.0f / TLVSI_CONFIG_SCALE))
-#define TLVSI_CONFIG_II_Q_LIM   ((float)(13.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_II_D_LIM   ((float)(15.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_II_Q_LIM   ((float)(15.0f / TLVSI_CONFIG_SCALE))
 
 #define TLVSI_CONFIG_Li			((float)0.0034)
 #define TLVSI_CONFIG_Lg			((float)0.0018)
@@ -34,8 +34,8 @@
 #define TLVSI_CONFIG_ts			((float)1.0f/40000.0f)
 
 #define TLVSI_CONFIG_w_ii		((float)(1.0f / TLVSI_CONFIG_SCALE))
-#define TLVSI_CONFIG_w_ig		((float)(625.0f / TLVSI_CONFIG_SCALE))
-#define TLVSI_CONFIG_w_vc		((float)(0.48999999999999994f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_w_ig		((float)(225.0f / TLVSI_CONFIG_SCALE))
+#define TLVSI_CONFIG_w_vc		((float)(0.25f / TLVSI_CONFIG_SCALE))
 
 //===========================================================================
 
