@@ -134,6 +134,162 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
     return sw;
 }
 //---------------------------------------------------------------------------
+uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt){
+
+    static uint32_t sw = 0;
+	float thetak, phi;
+    float J, Jk;
+    float co, si;
+    uint32_t k;
+
+    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    
+    psdtypesDQ0_t ig_k, ig_k_1;
+    psdtypesDQ0_t ii_k, ii_k_1, ii_ref;
+    psdtypesDQ0_t vc_k, vc_k_1, vc_ref;
+
+    /* Delay compensation */
+    tlvsiPredict(&ii_k, ii, &ig_k, ig,
+                 &vc_k, vc, vg, theta, sw);
+
+    /* References for filter cap. voltage and inverter current */
+    vc_ref.d = ( TLVSI_CONFIG_w * TLVSI_CONFIG_Lg) * ig_ref->q + vg->d;
+    vc_ref.q = (-TLVSI_CONFIG_w * TLVSI_CONFIG_Lg) * ig_ref->d + vg->q;
+
+    ii_ref.d = ig_ref->d + ( TLVSI_CONFIG_w * TLVSI_CONFIG_Cf) * vc_ref.q;
+    ii_ref.q = ig_ref->q + (-TLVSI_CONFIG_w * TLVSI_CONFIG_Cf) * vc_ref.d;
+
+    /* Predicts for each possible switching combination */
+//    sw = tlvsiOpt1(&ii_k, &ig_k, &vc_k, vg, &ii_ref, ig_ref, &vc_ref, theta, &J);
+
+    ii_d_constant = ii_k.d + TLVSI_CONFIG_k1 * ii_k.q + TLVSI_CONFIG_k2 * vc_k.d;
+    ii_q_constant = ii_k.q - TLVSI_CONFIG_k1 * ii_k.d + TLVSI_CONFIG_k2 * vc_k.q;
+
+    ii_k_1.d = ii_d_constant;
+    ii_k_1.q = ii_q_constant;
+
+    vc_d_constant = vc_k.d + TLVSI_CONFIG_k1 * vc_k.q + TLVSI_CONFIG_k4 * ii_k.d + TLVSI_CONFIG_k5 * ig_k.d;
+    vc_q_constant = vc_k.q - TLVSI_CONFIG_k1 * vc_k.d + TLVSI_CONFIG_k4 * ii_k.q + TLVSI_CONFIG_k5 * ig_k.q;
+
+    vc_k_1.d = vc_d_constant + TLVSI_CONFIG_k4 * (ii_d_constant);
+    vc_k_1.q = vc_q_constant + TLVSI_CONFIG_k4 * (ii_q_constant);
+
+    ig_d_constant = ig_k.d + TLVSI_CONFIG_k1 * ig_k.q + TLVSI_CONFIG_k6 * vc_k.d + TLVSI_CONFIG_k7 * vg->d;
+    ig_q_constant = ig_k.q - TLVSI_CONFIG_k1 * ig_k.d + TLVSI_CONFIG_k6 * vc_k.q + TLVSI_CONFIG_k7 * vg->q;
+
+    ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
+    ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
+
+    //Jk = tlvsiCost(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+    //               &vc_k_1, &vc_ref);
+    //J = Jk;
+    tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+    J = Jk;
+    sw = 0;
+
+    phi = 0;
+    for(k = 1; k < 7; k++){
+
+        thetak = theta - phi;
+        co = TLVSI_CONFIG_k3 * cosf(thetak);
+        si = TLVSI_CONFIG_k3 * sinf(thetak);
+
+        ii_k_1.d = ii_d_constant + co;
+        ii_k_1.q = ii_q_constant - si;
+
+        vc_k_1.d = vc_d_constant + TLVSI_CONFIG_k4 * (ii_k_1.d);
+        vc_k_1.q = vc_q_constant + TLVSI_CONFIG_k4 * (ii_k_1.q);
+
+        ig_k_1.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k_1.d);
+        ig_k_1.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k_1.q);
+
+        tlvsiOpt1(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+        //Jk = tlvsiCost(&ii_k_1, &ii_ref,
+        //               &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+
+        if(Jk < J){
+            J = Jk;
+            sw = k;
+        }
+
+        phi += 1.0471975511965976f;
+    }
+
+    if( Jopt != 0 ) *Jopt = J;
+
+    return sw;
+}
+//---------------------------------------------------------------------------
+uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t *ii_ref, psdtypesDQ0_t *ig_ref, psdtypesDQ0_t *vc_ref, float theta, float *Jopt){
+
+    static uint32_t sw = 0;
+	float thetak, phi;
+    float J, Jk;
+    float co, si;
+    uint32_t k;
+
+    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    
+    psdtypesDQ0_t ig_k;
+    psdtypesDQ0_t ii_k;
+    psdtypesDQ0_t vc_k;
+
+    /* Predicts for each possible switching combination */
+    ii_d_constant = ii->d + TLVSI_CONFIG_k1 * ii->q + TLVSI_CONFIG_k2 * vc->d;
+    ii_q_constant = ii->q - TLVSI_CONFIG_k1 * ii->d + TLVSI_CONFIG_k2 * vc->q;
+
+    ii_k.d = ii_d_constant;
+    ii_k.q = ii_q_constant;
+
+    vc_d_constant = vc->d + TLVSI_CONFIG_k1 * vc->q + TLVSI_CONFIG_k4 * ii->d + TLVSI_CONFIG_k5 * ig->d;
+    vc_q_constant = vc->q - TLVSI_CONFIG_k1 * vc->d + TLVSI_CONFIG_k4 * ii->q + TLVSI_CONFIG_k5 * ig->q;
+
+    vc_k.d = vc_d_constant + TLVSI_CONFIG_k4 * (ii_d_constant);
+    vc_k.q = vc_q_constant + TLVSI_CONFIG_k4 * (ii_q_constant);
+
+    ig_d_constant = ig->d + TLVSI_CONFIG_k1 * ig->q + TLVSI_CONFIG_k6 * vc->d + TLVSI_CONFIG_k7 * vg->d;
+    ig_q_constant = ig->q - TLVSI_CONFIG_k1 * ig->d + TLVSI_CONFIG_k6 * vc->q + TLVSI_CONFIG_k7 * vg->q;
+
+    ig_k.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k.d);
+    ig_k.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k.q);
+
+    Jk = tlvsiCost(&ii_k, ii_ref, &ig_k, ig_ref,
+                   &vc_k, vc_ref);
+    J = Jk;
+    sw = 0;
+
+    phi = 0;
+    for(k = 1; k < 7; k++){
+
+        thetak = theta - phi;
+        co = TLVSI_CONFIG_k3 * cosf(thetak);
+        si = TLVSI_CONFIG_k3 * sinf(thetak);
+
+        ii_k.d = ii_d_constant + co;
+        ii_k.q = ii_q_constant - si;
+
+        vc_k.d = vc_d_constant + TLVSI_CONFIG_k4 * (ii_k.d);
+        vc_k.q = vc_q_constant + TLVSI_CONFIG_k4 * (ii_k.q);
+
+        ig_k.d = ig_d_constant + TLVSI_CONFIG_k6 * (vc_k.d);
+        ig_k.q = ig_q_constant + TLVSI_CONFIG_k6 * (vc_k.q);
+
+        Jk = tlvsiCost(&ii_k, ii_ref,
+                       &ig_k, ig_ref, &vc_k, vc_ref);
+
+        if(Jk < J){
+            J = Jk;
+            sw = k;
+        }
+
+        phi += 1.0471975511965976f;
+    }
+
+    if( Jopt != 0 ) *Jopt = J;
+
+    return sw;
+}
+//---------------------------------------------------------------------------
 uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt){
 
     static uint32_t sw = 0;
@@ -238,6 +394,215 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
 
     if( Jopt != 0 ) *Jopt = J;
 
+    return sw;
+}
+//---------------------------------------------------------------------------
+uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt){
+
+    static uint32_t sw = 0;
+	fmint_t thetak, phi;
+    fmint_t co, si;
+	fmint_t J, Jk;
+    uint32_t k;
+
+    psdtypesDQ0int_t ig_k, ig_k_1;
+    psdtypesDQ0int_t ii_k, ii_k_1, ii_ref;
+    psdtypesDQ0int_t vc_k, vc_k_1, vc_ref;
+    
+    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+
+    /* Delay compensation */
+    tlvsiPredictFixed(&ii_k, ii, &ig_k, ig,
+                 &vc_k, vc, vg, theta, sw);
+
+    /* References for filter cap. voltage and inverter current */
+    vc_ref.d = fixedmul( TLVSI_CONFIG_k8_int, ig_ref->q) + vg->d;
+    vc_ref.q = fixedmul(-TLVSI_CONFIG_k8_int, ig_ref->d) + vg->q;
+
+    ii_ref.d = ig_ref->d + fixedmul( TLVSI_CONFIG_k9_int, vc_ref.q);
+    ii_ref.q = ig_ref->q + fixedmul(-TLVSI_CONFIG_k9_int, vc_ref.d);
+
+    /* Predicts for each possible switching combination */
+    //sw = tlvsiOpt1Fixed(&ii_k, &ig_k, &vc_k, vg, &ii_ref, ig_ref, &vc_ref, theta, &J);
+    
+    ii_d_constant = ii_k.d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, ii_k.q)
+    		+ fixedmul(TLVSI_CONFIG_k2_int, vc_k.d);
+
+    ii_q_constant = ii_k.q
+    		- fixedmul(TLVSI_CONFIG_k1_int, ii_k.d)
+			+ fixedmul(TLVSI_CONFIG_k2_int, vc_k.q);
+
+    ii_k_1.d = ii_d_constant;
+    ii_k_1.q = ii_q_constant;
+
+    vc_d_constant = vc_k.d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, vc_k.q)
+			+ fixedmul(TLVSI_CONFIG_k4_int, ii_k.d)
+			+ fixedmul(TLVSI_CONFIG_k5_int, ig_k.d);
+    vc_q_constant = vc_k.q
+    		- fixedmul(TLVSI_CONFIG_k1_int, vc_k.d)
+			+ fixedmul(TLVSI_CONFIG_k4_int, ii_k.q)
+			+ fixedmul(TLVSI_CONFIG_k5_int, ig_k.q);
+
+    vc_k_1.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_d_constant);
+    vc_k_1.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_q_constant);
+
+    ig_d_constant = ig_k.d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, ig_k.q)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vc_k.d)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vg->d);
+    ig_q_constant = ig_k.q
+    		- fixedmul(TLVSI_CONFIG_k1_int, ig_k.d)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vc_k.q)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vg->q);
+
+    ig_k_1.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.d);
+    ig_k_1.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
+
+    //Jk = tlvsiCostFixed(&ii_k_1, &ii_ref, &ig_k_1, ig_ref,
+    //               &vc_k_1, &vc_ref);
+    
+    tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+    
+    J = Jk;
+    sw = 0;
+
+    phi = 0;
+    for(k = 1; k < 7; k++){
+
+        thetak = theta - phi;
+
+        co = cosine((uint64_t)(fixedmul(thetak, (fixedmathftoi(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
+        co = co << (FIXED_MATH_Q - 18 + 1);
+
+        si = sine((uint64_t)(fixedmul(thetak, (fixedmathftoi(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
+        si = si << (FIXED_MATH_Q - 18 + 1);
+
+        co = fixedmul(TLVSI_CONFIG_k3_int, co);
+        si = fixedmul(TLVSI_CONFIG_k3_int, si);
+
+        ii_k_1.d = ii_d_constant + co;
+        ii_k_1.q = ii_q_constant - si;
+
+        vc_k_1.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_k_1.d);
+        vc_k_1.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_k_1.q);
+
+        ig_k_1.d = ig_d_constant
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.d);
+        ig_k_1.q = ig_q_constant
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k_1.q);
+
+        tlvsiOpt1Fixed(&ii_k_1, &ig_k_1, &vc_k_1, vg, &ii_ref, ig_ref, &vc_ref, theta, &Jk);
+    
+        //Jk = tlvsiCostFixed(&ii_k_1, &ii_ref,
+        //               &ig_k_1, ig_ref, &vc_k_1, &vc_ref);
+
+        if(Jk < J){
+            J = Jk;
+            sw = k;
+        }
+
+        phi += fixedmathftoi(1.0471975511965976f);
+    }
+
+    if( Jopt != 0 ) *Jopt = J;
+
+    return sw;
+}
+//---------------------------------------------------------------------------
+uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ii_ref, psdtypesDQ0int_t* ig_ref, psdtypesDQ0int_t* vc_ref, fmint_t theta, fmint_t *Jopt){
+
+    static uint32_t sw = 0;
+	fmint_t thetak, phi;
+    fmint_t co, si;
+	fmint_t J, Jk;
+    uint32_t k;
+
+    psdtypesDQ0int_t ig_k;
+    psdtypesDQ0int_t ii_k;
+    psdtypesDQ0int_t vc_k;
+    
+    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+
+    ii_d_constant = ii->d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, ii->q)
+    		+ fixedmul(TLVSI_CONFIG_k2_int, vc->d);
+
+    ii_q_constant = ii->q
+    		- fixedmul(TLVSI_CONFIG_k1_int, ii->d)
+			+ fixedmul(TLVSI_CONFIG_k2_int, vc->q);
+
+    ii_k.d = ii_d_constant;
+    ii_k.q = ii_q_constant;
+
+    vc_d_constant = vc->d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, vc->q)
+			+ fixedmul(TLVSI_CONFIG_k4_int, ii->d)
+			+ fixedmul(TLVSI_CONFIG_k5_int, ig->d);
+    vc_q_constant = vc->q
+    		- fixedmul(TLVSI_CONFIG_k1_int, vc->d)
+			+ fixedmul(TLVSI_CONFIG_k4_int, ii->q)
+			+ fixedmul(TLVSI_CONFIG_k5_int, ig->q);
+
+    vc_k.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_d_constant);
+    vc_k.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_q_constant);
+
+    ig_d_constant = ig->d
+    		+ fixedmul(TLVSI_CONFIG_k1_int, ig->q)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vc->d)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vg->d);
+    ig_q_constant = ig->q
+    		- fixedmul(TLVSI_CONFIG_k1_int, ig->d)
+			+ fixedmul(TLVSI_CONFIG_k6_int, vc->q)
+			+ fixedmul(TLVSI_CONFIG_k7_int, vg->q);
+
+    ig_k.d = ig_d_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k.d);
+    ig_k.q = ig_q_constant + fixedmul(TLVSI_CONFIG_k6_int, vc_k.q);
+
+    Jk = tlvsiCostFixed(&ii_k, ii_ref, &ig_k, ig_ref,
+                   &vc_k, vc_ref);
+    J = Jk;
+    sw = 0;
+
+    phi = 0;
+    for(k = 1; k < 7; k++){
+
+        thetak = theta - phi;
+
+        co = cosine((uint64_t)(fixedmul(thetak, (fixedmathftoi(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
+        co = co << (FIXED_MATH_Q - 18 + 1);
+
+        si = sine((uint64_t)(fixedmul(thetak, (fixedmathftoi(0.15915494309189535f))) >> (FIXED_MATH_Q - 20)));
+        si = si << (FIXED_MATH_Q - 18 + 1);
+
+        co = fixedmul(TLVSI_CONFIG_k3_int, co);
+        si = fixedmul(TLVSI_CONFIG_k3_int, si);
+
+        ii_k.d = ii_d_constant + co;
+        ii_k.q = ii_q_constant - si;
+
+        vc_k.d = vc_d_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_k.d);
+        vc_k.q = vc_q_constant + fixedmul(TLVSI_CONFIG_k4_int, ii_k.q);
+
+        ig_k.d = ig_d_constant
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k.d);
+        ig_k.q = ig_q_constant
+        		+ fixedmul(TLVSI_CONFIG_k6_int, vc_k.q);
+
+        Jk = tlvsiCostFixed(&ii_k, ii_ref,
+                       &ig_k, ig_ref, &vc_k, vc_ref);
+
+        if(Jk < J){
+            J = Jk;
+            sw = k;
+        }
+
+        phi += fixedmathftoi(1.0471975511965976f);
+    }
+
+    if( Jopt != 0 ) *Jopt = J;
+    
     return sw;
 }
 //---------------------------------------------------------------------------

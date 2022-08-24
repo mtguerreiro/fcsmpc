@@ -112,6 +112,12 @@ float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
 					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
 					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref);
+                     
+uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt);
+uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ii_ref, psdtypesDQ0int_t* ig_ref, psdtypesDQ0int_t* vc_ref, fmint_t theta, fmint_t *Jopt);
+
+uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt);
+uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t *ii_ref, psdtypesDQ0_t *ig_ref, psdtypesDQ0_t *vc_ref, float theta, float *Jopt);
 //===========================================================================
 
 
