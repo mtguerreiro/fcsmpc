@@ -31,7 +31,7 @@ void tptAbcDq0(tpdtAbc_t *abc, tpdtDq0_t *dq0, tpdtfloat_t si, tpdtfloat_t co){
     dq0->z	= (0.57735026913f) * (abc->a + abc->b + abc->c);
 }
 //---------------------------------------------------------------------------
-void tptABCDQ0Int(tpdtAbcFixedPoint_t *abc, tpdtDq0FixedPoint_t *dq0, tpdtint_t si, tpdtint_t co){
+void tptAbcDq0FixedPoint(tpdtAbcFixedPoint_t *abc, tpdtDq0FixedPoint_t *dq0, tpdtint_t si, tpdtint_t co){
 
 	fmint_t alpha, beta;
 
@@ -50,7 +50,7 @@ void tptLineToPhase(tpdtAbcLine_t *line, tpdtAbc_t *phase){
     phase->c = (-2.0f * line->ac + line->ab) / 3.0f;
 }
 //---------------------------------------------------------------------------
-void tptLineToPhaseInt(tpdtAbcLineFixedPoint_t *line, tpdtAbcFixedPoint_t *phase){
+void tptLineToPhaseFixedPoint(tpdtAbcLineFixedPoint_t *line, tpdtAbcFixedPoint_t *phase){
 
     phase->a = fixedmul( (line->ac + line->ab), fixedmathftoi(1.0f / 3.0f) );
     phase->b = fixedmul( (line->ac - fixedmul(fixedmathftoi(2.0f), line->ab)), fixedmathftoi(1.0f / 3.0f) );
