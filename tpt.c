@@ -1,5 +1,5 @@
 /*
- * tptransforms.c
+ * tpt.c
  *
  *  Created on: 25 de dez de 2021
  *      Author: marco
@@ -8,21 +8,18 @@
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
 //===========================================================================
-#include "tptransforms.h"
+#include "tpt.h"
 
 #include <math.h>
+
+#include "fixedmath.h"
 //===========================================================================
-
-
-#define TPTRANSFORMS_C1_INT		((int32_t)(0.66666666677f * 65536.0f))
-#define TPTRANSFORMS_C2_INT		((int32_t)(0.5f * 65536.0f))
-#define TPTRANSFORMS_C3_INT		((int32_t)(0.57735026913f * 65536.0f))
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co){
+void tptAbcDq0(tpdtAbc_t *abc, tpdtDq0_t *dq0, tpdtfloat_t si, tpdtfloat_t co){
 
 	float alpha, beta;
 
@@ -34,7 +31,7 @@ void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float 
     dq0->z	= (0.57735026913f) * (abc->a + abc->b + abc->c);
 }
 //---------------------------------------------------------------------------
-void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co){
+void tptABCDQ0Int(tpdtAbcFixedPoint_t *abc, tpdtDq0FixedPoint_t *dq0, tpdtint_t si, tpdtint_t co){
 
 	fmint_t alpha, beta;
 
@@ -46,14 +43,14 @@ void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t
     dq0->z	= fixedmul( fixedmathftoi(0.57735026913f), (abc->a + abc->b + abc->c));
 }
 //---------------------------------------------------------------------------
-void tptransformsLineToPhase(psdtypesABCLine_t *line, psdtypesABC_t *phase){
+void tptLineToPhase(tpdtAbcLine_t *line, tpdtAbc_t *phase){
 
     phase->a = (line->ac + line->ab) / 3.0f;
     phase->b = (line->ac - 2.0f * line->ab) / 3.0f;
     phase->c = (-2.0f * line->ac + line->ab) / 3.0f;
 }
 //---------------------------------------------------------------------------
-void tptransformsLineToPhaseInt(psdtypesABCLineint_t *line, psdtypesABCint_t *phase){
+void tptLineToPhaseInt(tpdtAbcLineFixedPoint_t *line, tpdtAbcFixedPoint_t *phase){
 
     phase->a = fixedmul( (line->ac + line->ab), fixedmathftoi(1.0f / 3.0f) );
     phase->b = fixedmul( (line->ac - fixedmul(fixedmathftoi(2.0f), line->ab)), fixedmathftoi(1.0f / 3.0f) );

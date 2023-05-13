@@ -4,31 +4,31 @@
  *  Created on: 25 de dez de 2021
  *      Author: marco
  *
+ * Three-phase transforms.
+ *
  * The source code for the transform was extracted (and slightly modified)
  * from TI's DigitalPower library.
  */
 
-#ifndef TPTRANSFORMS_H_
-#define TPTRANSFORMS_H_
+#ifndef TPT_H_
+#define TPT_H_
 
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
 //===========================================================================
 #include <stdint.h>
 
-#include "psdtypes.h"
-
-#include "fixedmath.h"
+#include "tpdt.h"
 //===========================================================================
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-void tptransformsABCDQ0(psdtypesABC_t *abc, psdtypesDQ0_t *dq0, float si, float co);
-void tptransformsABCDQ0Int(psdtypesABCint_t *abc, psdtypesDQ0int_t *dq0, fmint_t si, fmint_t co);
+void tptAbcDq0(tpdtAbc_t *abc, tpdtDq0_t *dq0, tpdtfloat_t si, tpdtfloat_t co);
+void tptABCDQ0Int(tpdtAbcFixedPoint_t *abc, tpdtDq0FixedPoint_t *dq0, tpdtint_t si, tpdtint_t co);
 
-void tptransformsLineToPhase(psdtypesABCLine_t *line, psdtypesABC_t *phase);
-void tptransformsLineToPhaseInt(psdtypesABCLineint_t *line, psdtypesABCint_t *phase);
+void tptLineToPhase(tpdtAbcLine_t *line, tpdtAbc_t *phase);
+void tptLineToPhaseInt(tpdtAbcLineFixedPoint_t *line, tpdtAbcFixedPoint_t *phase);
 //===========================================================================
 
-#endif /* TPTRANSFORMS_H_ */
+#endif /* TPT_H_ */

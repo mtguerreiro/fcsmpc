@@ -10,10 +10,11 @@
 //===========================================================================
 #include "tlvsi.h"
 
-#include "tptransforms.h"
 #include <math.h>
 
 #include <stdbool.h>
+
+#include "tpt.h"
 //#include <assert.h>
 
 #include "tlvsi_config.h"
@@ -65,19 +66,24 @@ int64_t clamp_overflow(int64_t value, int width);
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt){
+uint32_t tlvsiOpt(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t* ig_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	float thetak, phi;
-    float J, Jk;
-    float co, si;
+    tpdtfloat_t thetak, phi;
+    tpdtfloat_t J, Jk;
+    tpdtfloat_t co, si;
     uint32_t k;
 
-    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtfloat_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
     
-    psdtypesDQ0_t ig_k, ig_k_1;
-    psdtypesDQ0_t ii_k, ii_k_1, ii_ref;
-    psdtypesDQ0_t vc_k, vc_k_1, vc_ref;
+    tpdtDq0_t ig_k, ig_k_1;
+    tpdtDq0_t ii_k, ii_k_1, ii_ref;
+    tpdtDq0_t vc_k, vc_k_1, vc_ref;
 
     /* Delay compensation */
     tlvsiPredict(&ii_k, ii, &ig_k, ig,
@@ -157,19 +163,24 @@ uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdty
     return sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt){
+uint32_t tlvsiOpt2(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t* ig_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	float thetak, phi;
-    float J, Jk;
-    float co, si;
+    tpdtfloat_t thetak, phi;
+    tpdtfloat_t J, Jk;
+    tpdtfloat_t co, si;
     uint32_t k;
 
-    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtfloat_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
     
-    psdtypesDQ0_t ig_k, ig_k_1;
-    psdtypesDQ0_t ii_k, ii_k_1, ii_ref;
-    psdtypesDQ0_t vc_k, vc_k_1, vc_ref;
+    tpdtDq0_t ig_k, ig_k_1;
+    tpdtDq0_t ii_k, ii_k_1, ii_ref;
+    tpdtDq0_t vc_k, vc_k_1, vc_ref;
 
     /* Delay compensation */
     tlvsiPredict(&ii_k, ii, &ig_k, ig,
@@ -256,19 +267,25 @@ uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
     return sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t *ii_ref, psdtypesDQ0_t *ig_ref, psdtypesDQ0_t *vc_ref, float theta, float *Jopt){
+uint32_t tlvsiOpt1(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t *ii_ref, tpdtDq0_t *ig_ref,
+		tpdtDq0_t *vc_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	float thetak, phi;
-    float J, Jk;
-    float co, si;
+    tpdtfloat_t thetak, phi;
+    tpdtfloat_t J, Jk;
+    tpdtfloat_t co, si;
     uint32_t k;
 
-    float ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtfloat_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
     
-    psdtypesDQ0_t ig_k;
-    psdtypesDQ0_t ii_k;
-    psdtypesDQ0_t vc_k;
+    tpdtDq0_t ig_k;
+    tpdtDq0_t ii_k;
+    tpdtDq0_t vc_k;
 
     /* Predicts for each possible switching combination */
     ii_d_constant = ii->d + TLVSI_CONFIG_k1 * ii->q + TLVSI_CONFIG_k2 * vc->d;
@@ -346,19 +363,24 @@ uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdt
     return sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt){
+uint32_t tlvsiOptFixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t * ig_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	fmint_t thetak, phi;
-    fmint_t co, si;
-	fmint_t J, Jk;
+    tpdtint_t thetak, phi;
+    tpdtint_t co, si;
+    tpdtint_t J, Jk;
     uint32_t k;
 
-    psdtypesDQ0int_t ig_k, ig_k_1;
-    psdtypesDQ0int_t ii_k, ii_k_1, ii_ref;
-    psdtypesDQ0int_t vc_k, vc_k_1, vc_ref;
+    tpdtDq0FixedPoint_t ig_k, ig_k_1;
+    tpdtDq0FixedPoint_t ii_k, ii_k_1, ii_ref;
+    tpdtDq0FixedPoint_t vc_k, vc_k_1, vc_ref;
     
-    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     /* Delay compensation */
     tlvsiPredictFixed(&ii_k, ii, &ig_k, ig,
@@ -478,19 +500,24 @@ uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0in
     return sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt){
+uint32_t tlvsiOpt2Fixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t* ig_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	fmint_t thetak, phi;
-    fmint_t co, si;
-	fmint_t J, Jk;
+    tpdtint_t thetak, phi;
+    tpdtint_t co, si;
+    tpdtint_t J, Jk;
     uint32_t k;
 
-    psdtypesDQ0int_t ig_k, ig_k_1;
-    psdtypesDQ0int_t ii_k, ii_k_1, ii_ref;
-    psdtypesDQ0int_t vc_k, vc_k_1, vc_ref;
+    tpdtDq0FixedPoint_t ig_k, ig_k_1;
+    tpdtDq0FixedPoint_t ii_k, ii_k_1, ii_ref;
+    tpdtDq0FixedPoint_t vc_k, vc_k_1, vc_ref;
     
-    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     /* Delay compensation */
     tlvsiPredictFixed(&ii_k, ii, &ig_k, ig,
@@ -609,19 +636,25 @@ uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
     return sw;
 }
 //---------------------------------------------------------------------------
-uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ii_ref, psdtypesDQ0int_t* ig_ref, psdtypesDQ0int_t* vc_ref, fmint_t theta, fmint_t *Jopt){
+uint32_t tlvsiOpt1Fixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t* ii_ref, tpdtDq0FixedPoint_t* ig_ref,
+		tpdtDq0FixedPoint_t* vc_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		){
 
     static uint32_t sw = 0;
-	fmint_t thetak, phi;
-    fmint_t co, si;
-	fmint_t J, Jk;
+    tpdtint_t thetak, phi;
+    tpdtint_t co, si;
+    tpdtint_t J, Jk;
     uint32_t k;
 
-    psdtypesDQ0int_t ig_k;
-    psdtypesDQ0int_t ii_k;
-    psdtypesDQ0int_t vc_k;
+    tpdtDq0FixedPoint_t ig_k;
+    tpdtDq0FixedPoint_t ii_k;
+    tpdtDq0FixedPoint_t vc_k;
     
-    fmint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
+    tpdtint_t ii_d_constant, ii_q_constant, ig_d_constant, ig_q_constant, vc_d_constant, vc_q_constant;
 
     ii_d_constant = ii->d
     		+ fixedmul(TLVSI_CONFIG_k1_int, ii->q)
@@ -728,11 +761,13 @@ uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0i
     return sw;
 }
 //---------------------------------------------------------------------------
-void tlvsiPredict(psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
-				  psdtypesDQ0_t *ig_k_1, psdtypesDQ0_t *ig_k,
-				  psdtypesDQ0_t *vc_k_1, psdtypesDQ0_t *vc_k,
-				  psdtypesDQ0_t *vg_k,
-				  float theta, uint32_t sw){
+void tlvsiPredict(
+		tpdtDq0_t *ii_k_1, tpdtDq0_t *ii_k,
+		tpdtDq0_t *ig_k_1, tpdtDq0_t *ig_k,
+		tpdtDq0_t *vc_k_1, tpdtDq0_t *vc_k,
+		tpdtDq0_t *vg_k,
+		tpdtfloat_t theta, uint32_t sw
+		){
 
 	ii_k_1->d = ii_k->d + TLVSI_CONFIG_k1 * ii_k->q + TLVSI_CONFIG_k2 * vc_k->d;
 	ii_k_1->q = ii_k->q - TLVSI_CONFIG_k1 * ii_k->d + TLVSI_CONFIG_k2 * vc_k->q;
@@ -749,13 +784,15 @@ void tlvsiPredict(psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
 	ig_k_1->q = ig_k->q - TLVSI_CONFIG_k1 * ig_k->d + TLVSI_CONFIG_k6 * (vc_k_1->q + vc_k->q) + TLVSI_CONFIG_k7 * vg_k->q;
 }
 //---------------------------------------------------------------------------
-void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
-				  	   psdtypesDQ0int_t *ig_k_1, psdtypesDQ0int_t *ig_k,
-					   psdtypesDQ0int_t *vc_k_1, psdtypesDQ0int_t *vc_k,
-					   psdtypesDQ0int_t *vg_k,
-					   fmint_t theta, uint32_t sw){
+void tlvsiPredictFixed(
+		tpdtDq0FixedPoint_t *ii_k_1, tpdtDq0FixedPoint_t *ii_k,
+		tpdtDq0FixedPoint_t *ig_k_1, tpdtDq0FixedPoint_t *ig_k,
+		tpdtDq0FixedPoint_t *vc_k_1, tpdtDq0FixedPoint_t *vc_k,
+		tpdtDq0FixedPoint_t *vg_k,
+		tpdtint_t theta, uint32_t sw
+		){
 
-	fmint_t co, si;
+	tpdtint_t co, si;
 
 	ii_k_1->d = ii_k->d + fixedmul(TLVSI_CONFIG_k1_int, ii_k->q) + fixedmul(TLVSI_CONFIG_k2_int, vc_k->d);
 	ii_k_1->q = ii_k->q - fixedmul(TLVSI_CONFIG_k1_int, ii_k->d) + fixedmul(TLVSI_CONFIG_k2_int, vc_k->q);
@@ -791,12 +828,14 @@ void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
 			+ fixedmul(TLVSI_CONFIG_k7_int, vg_k->q);
 }
 //---------------------------------------------------------------------------
-float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
-				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,
-				psdtypesDQ0_t *vc, psdtypesDQ0_t *vc_ref){
+tpdtfloat_t tlvsiCost(
+		tpdtDq0_t *ii, tpdtDq0_t *ii_ref,
+		tpdtDq0_t *ig, tpdtDq0_t *ig_ref,
+		tpdtDq0_t *vc, tpdtDq0_t *vc_ref
+		){
 
-	float e_ii[2], e_ig[2], e_vc[2];
-	float J;
+	tpdtfloat_t e_ii[2], e_ig[2], e_vc[2];
+	tpdtfloat_t J;
 
 	e_ii[0] = ii->d - ii_ref->d;
 	e_ii[1] = ii->q - ii_ref->q;
@@ -814,12 +853,14 @@ float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
 	return J;
 }
 //---------------------------------------------------------------------------
-fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
-					   psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
-					   psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref){
+tpdtint_t tlvsiCostFixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ii_ref,
+		tpdtDq0FixedPoint_t *ig, tpdtDq0FixedPoint_t *ig_ref,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vc_ref
+		){
 
-	fmint_t e_ii[2], e_ig[2], e_vc[2];
-	fmint_t J;
+	tpdtint_t e_ii[2], e_ig[2], e_vc[2];
+	tpdtint_t J;
 
 	e_ii[0] = ii->d - ii_ref->d;
 	e_ii[1] = ii->q - ii_ref->q;

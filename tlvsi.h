@@ -13,8 +13,8 @@
 //===========================================================================
 #include <stdint.h>
 
-#include "psdtypes.h"
-#include "tppll.h"
+#include "pll.h"
+#include "tpdt.h"
 
 #include "fixedmath.h"
 //===========================================================================
@@ -25,63 +25,63 @@
 
 typedef struct{
 
-    psdtypesABC_t ig_abc;
-    psdtypesDQ0_t ig_d;
-    psdtypesDQ0_t ig_k;
-    psdtypesDQ0_t ig_k_1;
-    psdtypesDQ0_t ig_ref;
+	tpdtAbc_t ig_abc;
+	tpdtDq0_t ig_d;
+	tpdtDq0_t ig_k;
+	tpdtDq0_t ig_k_1;
+	tpdtDq0_t ig_ref;
 
-    psdtypesABC_t ii_abc;
-    psdtypesDQ0_t ii_d;
-    psdtypesDQ0_t ii_k;
-    psdtypesDQ0_t ii_k_1;
-    psdtypesDQ0_t ii_ref;
+	tpdtAbc_t ii_abc;
+    tpdtDq0_t ii_d;
+    tpdtDq0_t ii_k;
+    tpdtDq0_t ii_k_1;
+    tpdtDq0_t ii_ref;
 
-    psdtypesABC_t vc_abc;
-    psdtypesDQ0_t vc_d;
-    psdtypesDQ0_t vc_k;
-    psdtypesDQ0_t vc_k_1;
-    psdtypesDQ0_t vc_ref;
+    tpdtAbc_t vc_abc;
+    tpdtDq0_t vc_d;
+    tpdtDq0_t vc_k;
+    tpdtDq0_t vc_k_1;
+    tpdtDq0_t vc_ref;
 
-    psdtypesABC_t vg_abc;
-    psdtypesDQ0_t vg_k;
+    tpdtAbc_t vg_abc;
+    tpdtDq0_t vg_k;
 
     float theta;
 
     uint32_t sw;
 
-    SPLL_3PH_SRF spll_3ph_1;
+    pll_t spll_3ph_1;
 
 } tlvsiLCLPredictData_t;
 
 typedef struct{
 
-    psdtypesABC_t ig_abc;
-    psdtypesDQ0int_t ig_d;
-    psdtypesDQ0int_t ig_k;
-    psdtypesDQ0int_t ig_k_1;
-    psdtypesDQ0int_t ig_ref;
+	tpdtAbc_t ig_abc;
+	tpdtDq0FixedPoint_t ig_d;
+	tpdtDq0FixedPoint_t ig_k;
+	tpdtDq0FixedPoint_t ig_k_1;
+	tpdtDq0FixedPoint_t ig_ref;
 
-    psdtypesABC_t ii_abc;
-    psdtypesDQ0int_t ii_d;
-    psdtypesDQ0int_t ii_k;
-    psdtypesDQ0int_t ii_k_1;
-    psdtypesDQ0int_t ii_ref;
+    tpdtAbc_t ii_abc;
+    tpdtDq0FixedPoint_t ii_d;
+    tpdtDq0FixedPoint_t ii_k;
+    tpdtDq0FixedPoint_t ii_k_1;
+    tpdtDq0FixedPoint_t ii_ref;
 
-    psdtypesABC_t vc_abc;
-    psdtypesDQ0int_t vc_d;
-    psdtypesDQ0int_t vc_k;
-    psdtypesDQ0int_t vc_k_1;
-    psdtypesDQ0int_t vc_ref;
+    tpdtAbc_t vc_abc;
+    tpdtDq0FixedPoint_t vc_d;
+    tpdtDq0FixedPoint_t vc_k;
+    tpdtDq0FixedPoint_t vc_k_1;
+    tpdtDq0FixedPoint_t vc_ref;
 
-    psdtypesABC_t vg_abc;
-    psdtypesDQ0int_t vg_k;
+    tpdtAbc_t vg_abc;
+    tpdtDq0FixedPoint_t vg_k;
 
     fmint_t theta;
 
     uint32_t sw;
 
-    SPLL_3PH_SRF_INT spll_3ph_1;
+    pllFixedPoint_t spll_3ph_1;
 
 } tlvsiLCLPredictDataInt_t;
 //===========================================================================
@@ -89,35 +89,77 @@ typedef struct{
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-uint32_t tlvsiOpt(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt);
+uint32_t tlvsiOpt(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t* ig_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		);
 
-void tlvsiPredict(psdtypesDQ0_t *ii_k_1, psdtypesDQ0_t *ii_k,
-				  psdtypesDQ0_t *ig_k_1, psdtypesDQ0_t *ig_k,
-				  psdtypesDQ0_t *vc_k_1, psdtypesDQ0_t *vc_k,
-				  psdtypesDQ0_t *vg_k,
-				  float theta, uint32_t sw);
+void tlvsiPredict(
+		tpdtDq0_t *ii_k_1, tpdtDq0_t *ii_k,
+		tpdtDq0_t *ig_k_1, tpdtDq0_t *ig_k,
+		tpdtDq0_t *vc_k_1, tpdtDq0_t *vc_k,
+		tpdtDq0_t *vg_k,
+		tpdtfloat_t theta, uint32_t sw
+		);
 
-void tlvsiPredictFixed(psdtypesDQ0int_t *ii_k_1, psdtypesDQ0int_t *ii_k,
-				  	   psdtypesDQ0int_t *ig_k_1, psdtypesDQ0int_t *ig_k,
-					   psdtypesDQ0int_t *vc_k_1, psdtypesDQ0int_t *vc_k,
-					   psdtypesDQ0int_t *vg_k,
-					   fmint_t theta, uint32_t sw);
+void tlvsiPredictFixed(
+		tpdtDq0FixedPoint_t *ii_k_1, tpdtDq0FixedPoint_t *ii_k,
+		tpdtDq0FixedPoint_t *ig_k_1, tpdtDq0FixedPoint_t *ig_k,
+		tpdtDq0FixedPoint_t *vc_k_1, tpdtDq0FixedPoint_t *vc_k,
+		tpdtDq0FixedPoint_t *vg_k,
+		tpdtint_t theta, uint32_t sw
+		);
 
-uint32_t tlvsiOptFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt);
+uint32_t tlvsiOptFixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t * ig_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		);
 
-float tlvsiCost(psdtypesDQ0_t *ii, psdtypesDQ0_t *ii_ref,
-				psdtypesDQ0_t *ig, psdtypesDQ0_t *ig_ref,
-				psdtypesDQ0_t *vc, psdtypesDQ0_t *vc_ref);
+tpdtfloat_t tlvsiCost(
+		tpdtDq0_t *ii, tpdtDq0_t *ii_ref,
+		tpdtDq0_t *ig, tpdtDq0_t *ig_ref,
+		tpdtDq0_t *vc, tpdtDq0_t *vc_ref
+		);
 
-fmint_t tlvsiCostFixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ii_ref,
-					 psdtypesDQ0int_t *ig, psdtypesDQ0int_t *ig_ref,
-					 psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vc_ref);
+tpdtint_t tlvsiCostFixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ii_ref,
+		tpdtDq0FixedPoint_t *ig, tpdtDq0FixedPoint_t *ig_ref,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vc_ref
+		);
                      
-uint32_t tlvsiOpt2Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ig_ref, fmint_t theta, fmint_t *Jopt);
-uint32_t tlvsiOpt1Fixed(psdtypesDQ0int_t *ii, psdtypesDQ0int_t *ig, psdtypesDQ0int_t *vc, psdtypesDQ0int_t *vg, psdtypesDQ0int_t* ii_ref, psdtypesDQ0int_t* ig_ref, psdtypesDQ0int_t* vc_ref, fmint_t theta, fmint_t *Jopt);
+uint32_t tlvsiOpt2Fixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t* ig_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		);
 
-uint32_t tlvsiOpt2(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t* ig_ref, float theta, float *Jopt);
-uint32_t tlvsiOpt1(psdtypesDQ0_t *ii, psdtypesDQ0_t *ig, psdtypesDQ0_t *vc, psdtypesDQ0_t *vg, psdtypesDQ0_t *ii_ref, psdtypesDQ0_t *ig_ref, psdtypesDQ0_t *vc_ref, float theta, float *Jopt);
+uint32_t tlvsiOpt1Fixed(
+		tpdtDq0FixedPoint_t *ii, tpdtDq0FixedPoint_t *ig,
+		tpdtDq0FixedPoint_t *vc, tpdtDq0FixedPoint_t *vg,
+		tpdtDq0FixedPoint_t* ii_ref, tpdtDq0FixedPoint_t* ig_ref,
+		tpdtDq0FixedPoint_t* vc_ref,
+		tpdtint_t theta, tpdtint_t *Jopt
+		);
+
+uint32_t tlvsiOpt2(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t* ig_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		);
+
+uint32_t tlvsiOpt1(
+		tpdtDq0_t *ii, tpdtDq0_t *ig,
+		tpdtDq0_t *vc, tpdtDq0_t *vg,
+		tpdtDq0_t *ii_ref, tpdtDq0_t *ig_ref,
+		tpdtDq0_t *vc_ref,
+		tpdtfloat_t theta, tpdtfloat_t *Jopt
+		);
 //===========================================================================
 
 

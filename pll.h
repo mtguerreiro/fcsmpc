@@ -1,5 +1,5 @@
 /*
- * tppll.h
+ * pll.h
  *
  *  Created on: 25 de dez de 2021
  *      Author: marco
@@ -8,59 +8,62 @@
  * modified) from TI's DigitalPower library.
  */
 
-#ifndef TPPLL_H_
-#define TPPLL_H_
+#ifndef PLL_H_
+#define PLL_H_
 
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
 //===========================================================================
 #include <stdint.h>
 
-#include "fixedmath.h"
+#include "tpdt.h"
 //===========================================================================
 
-typedef float float32_t;
+typedef tpdtfloat_t pllfloat_t;
+typedef tpdtint_t pllint_t;
 
 //===========================================================================
 /*------------------------------ Definitions ------------------------------*/
 //===========================================================================
 typedef struct{
- float32_t b1;
- float32_t b0;
-} SPLL_3PH_SRF_LPF_COEFF;
+	pllfloat_t b1;
+	pllfloat_t b0;
+}pllLpfCoeff;
 
 typedef struct{
- float32_t v_q[2];     
- float32_t ylf[2];     
- float32_t fo;         
- float32_t fn;         
- float32_t theta[2];   
- float32_t delta_t;    
- SPLL_3PH_SRF_LPF_COEFF lpf_coeff;  
-} SPLL_3PH_SRF;
+	pllfloat_t v_q[2];
+	pllfloat_t ylf[2];
+	pllfloat_t fo;
+	pllfloat_t fn;
+	pllfloat_t theta[2];
+	pllfloat_t delta_t;
+	pllLpfCoeff lpf_coeff;
+}pll_t;
 
 typedef struct{
- fmint_t b1;
- fmint_t b0;
-} SPLL_3PH_SRF_LPF_COEFF_INT;
+	pllint_t b1;
+	pllint_t b0;
+}pllLpfCoeffInt;
 
 typedef struct{
- fmint_t v_q[2];
- fmint_t ylf[2];
- fmint_t fo;
- fmint_t fn;
- fmint_t theta[2];
- fmint_t delta_t;
- SPLL_3PH_SRF_LPF_COEFF_INT lpf_coeff;
-} SPLL_3PH_SRF_INT;
+	pllint_t v_q[2];
+	pllint_t ylf[2];
+	pllint_t fo;
+	pllint_t fn;
+	pllint_t theta[2];
+	pllint_t delta_t;
+	pllLpfCoeffInt lpf_coeff;
+}pllFixedPoint_t;
 //===========================================================================
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
-void tppllInit(float32_t grid_freq, float32_t delta_t, SPLL_3PH_SRF *spll_obj);
-void tppllRun(float32_t v_q, SPLL_3PH_SRF *spll_obj);
-void tppllRunInt(fmint_t v_q, SPLL_3PH_SRF_INT *spll_obj);
+void pllInit(pll_t *pll, pllfloat_t fn, pllfloat_t dt);
+void pllRun(pll_t *pll, pllfloat_t v_q);
+
+void pllInitFixedPoint(pllFixedPoint_t *pll, pllint_t fn, pllint_t dt);
+void pllRunFixedPoint(pllFixedPoint_t *pll, pllint_t v_q);
 //===========================================================================
 
-#endif /* TPPLL_H_ */
+#endif /* PLL_H_ */
